@@ -1,2 +1,4 @@
 *.pyc
 ENV
+*.tmp
+data/*
