@@ -1,11 +1,14 @@
-# Requirements
+## Requirements
 
-## [Python](https://www.python.org/downloads/)
+### [Python](https://www.python.org/downloads/)
 
-## lxml
+### lxml
 www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
 pip install \<file\>
 
-## ezodf
-pip install ezodf
+### Others
+
+*First install lxml !*
+
+pip install -r requirements.txt
