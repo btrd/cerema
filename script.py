@@ -20,5 +20,5 @@ def check_requirements():
 
 if __name__ == '__main__':
     check_requirements()
-    import spreadsheet
-    spreadsheet.createSpreadsheet("./data/bruit.ods")
+    from spreadsheet import Spreadsheet
+    i = Spreadsheet(pathToBruit="data/bruit.ods", pathToRes="data/sortie.ods")
