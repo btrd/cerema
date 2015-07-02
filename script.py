@@ -21,4 +21,7 @@ def check_requirements():
 if __name__ == '__main__':
     check_requirements()
     from spreadsheet import Spreadsheet
-    i = Spreadsheet(pathToBruit="data/bruit.ods", pathToRes="data/sortie.ods")
+    pathToBruit = "data/bruit.ods"
+    pathToTrafic = "data/trafic.ods"
+    pathToRes = "data/sortie.ods"
+    i = Spreadsheet(eqVLPL= 5,pathToBruit=pathToBruit, pathToTrafic=pathToTrafic, pathToRes=pathToRes)
