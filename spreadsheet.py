@@ -7,7 +7,7 @@ class Spreadsheet(object):
     def __init__(self, eqVLPL, pathToBruit, pathToTrafic, pathToRes):
         self.eqVLPL = eqVLPL
         self.bruits = self.openSheet(pathToBruit)
-        self.trafics = self.openSheet(pathToTrafic)
+        self.trafic = self.openSheet(pathToTrafic)
         res_sheet = self.createSheet(pathToRes)
 
         #récupere les données des premières lignes, puis les supprimes
@@ -16,6 +16,8 @@ class Spreadsheet(object):
         #copie les données de la feuille bruits vers la feuille de résultat
         res_sheet.sheets += self.bruits
         self.data = res_sheet.sheets[0]
+
+        self.checkLine()
 
         #ajoute les colonnes contenant les formules
         self.addHours()
@@ -51,6 +53,29 @@ class Spreadsheet(object):
         self.addEqVLPL()
         self.addNbrJour()
         self.saveSheet(res_sheet)
+
+    # Demande à l'utilisateur si la première ligne des deux tableaux coincide
+    def checkLine(self):
+        print("     _________________________________________________")
+        print()
+        date = self.getDate(self.data[1, 0].value)
+        var = "    | " + str(date) + " | "
+        for x in range(1, self.data.ncols()):
+            var = var + str(self.data[1, x].value) + " | "
+        print(var)
+        print("     _________________________________________________")
+        print()
+        var = "    | "
+        for x in range(0, self.trafic.ncols()):
+            var = var + str(self.trafic[1, x].value) + " | "
+        print(var)
+        print("     _________________________________________________")
+        print()
+        var = input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
+
+        if var != "Oui" and var != "O" and var != "":
+            print("Le fichier trafic.ods doit être modifié pour correspondre au fichier bruit.ods")
+            exit(0)
 
     # Try to open document, quit if error
     def openSheet(self, pathToSheet):
@@ -133,13 +158,13 @@ class Spreadsheet(object):
         self.data.append_columns(1)
         self.data[0, self.data.ncols()-1].set_value("VL")
         for x in range(1, self.data.nrows()):
-            self.data[x, self.data.ncols()-1].set_value(self.trafics[x,1].value)
+            self.data[x, self.data.ncols()-1].set_value(self.trafic[x,1].value)
 
     def addPL(self):
         self.data.append_columns(1)
         self.data[0, self.data.ncols()-1].set_value("PL")
         for x in range(1, self.data.nrows()):
-            self.data[x, self.data.ncols()-1].set_value(self.trafics[x,2].value)
+            self.data[x, self.data.ncols()-1].set_value(self.trafic[x,2].value)
 
     def addQeq(self):
         form = "=I{x}+B" + str(self.data.nrows()+4) + "*J{x}"
