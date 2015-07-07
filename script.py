@@ -2,7 +2,6 @@
 # -*- coding: utf8 -*-
 import sys
 import imp
-import os
 from sys import exit
 
 def check_requirements():
@@ -12,6 +11,11 @@ def check_requirements():
     #     return False
 
     #check instalation ezodf
+    try:
+        imp.find_module('lxml')
+    except ImportError:
+        print("Vous avez besoin de la librairie lxml, cf. fichier README")
+        exit(0)
     try:
         imp.find_module('ezodf')
     except ImportError:
@@ -24,4 +28,4 @@ if __name__ == '__main__':
     pathToBruit = "data/bruit.ods"
     pathToTrafic = "data/trafic.ods"
     pathToRes = "data/sortie.ods"
-    i = Spreadsheet(eqVLPL= 5,pathToBruit=pathToBruit, pathToTrafic=pathToTrafic, pathToRes=pathToRes)
+    Spreadsheet(eqVLPL= 5,pathToBruit=pathToBruit, pathToTrafic=pathToTrafic, pathToRes=pathToRes)
