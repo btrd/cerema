@@ -27,5 +27,5 @@ if __name__ == '__main__':
     from spreadsheet import Spreadsheet
     pathToBruit = "data/bruit.ods"
     pathToTrafic = "data/trafic.ods"
-    pathToRes = "data/sortie.ods"
-    Spreadsheet(eqVLPL= 5,pathToBruit=pathToBruit, pathToTrafic=pathToTrafic, pathToRes=pathToRes)
+    pathToSortie = "data/sortie.ods"
+    Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
