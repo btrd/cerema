@@ -151,7 +151,7 @@ class Spreadsheet(object):
             self.sortie[x, 0].set_value(time.hour)
 
     def addGauss(self):
-        name = "Laeq"
+        name = "Laeq Gauss"
         form = "=(F{x}+E{x})/2+0.0175*(F{x}-E{x})^2"
         self.addColumnFormula(name, form)
 
