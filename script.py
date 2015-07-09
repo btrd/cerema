@@ -3,6 +3,7 @@
 import sys
 import imp
 from sys import exit
+from subprocess import call
 
 def check_requirements():
     #check Python version
@@ -25,13 +26,27 @@ def check_requirements():
 if __name__ == '__main__':
     check_requirements()
 
-    # from spreadsheet import Spreadsheet
-    # pathToBruit = "data/bruit.ods"
-    # pathToTrafic = "data/trafic.ods"
-    # pathToSortie = "data/sortie.ods"
+    pathData = "data"
+
+    from spreadsheet import Spreadsheet
+    pathToBruit = pathData + "/bruit.ods"
+    pathToTrafic = pathData + "/trafic.ods"
+    pathToSortie = pathData + "/sortie.ods"
     # Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
 
+    #converti ODS en CSV
+    # cmdConversion = "soffice --headless --convert-to csv --outdir " + pathData + " " + pathToSortie
+    # return_code = call(cmdConversion, shell=True)
+    # if return_code == 1:
+    #     print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
+    #     exit(0)
+
+    from graph import Graph
+    pathToImg = pathData + "/graph.png"
+    pathToCsv = pathData + "/sortie.csv"
+    Graph(pathToImg, pathToCsv)
+
     from report import Report
-    pathToReport = "data/report.odt"
-    pathToParam = "data/param.ods"
-    Report(pathToReport, pathToParam)
+    pathToReport = pathData + "/report.odt"
+    pathToParam = pathData + "/param.ods"
+    # Report(pathToReport, pathToParam)
