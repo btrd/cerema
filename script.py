@@ -24,8 +24,14 @@ def check_requirements():
 
 if __name__ == '__main__':
     check_requirements()
-    from spreadsheet import Spreadsheet
-    pathToBruit = "data/bruit.ods"
-    pathToTrafic = "data/trafic.ods"
-    pathToSortie = "data/sortie.ods"
-    Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
+
+    # from spreadsheet import Spreadsheet
+    # pathToBruit = "data/bruit.ods"
+    # pathToTrafic = "data/trafic.ods"
+    # pathToSortie = "data/sortie.ods"
+    # Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
+
+    from report import Report
+    pathToReport = "data/report.odt"
+    pathToParam = "data/param.ods"
+    Report(pathToReport, pathToParam)

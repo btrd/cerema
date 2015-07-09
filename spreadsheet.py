@@ -54,7 +54,7 @@ class Spreadsheet(object):
         self.addEqVLPL()
         self.addNbrJour()
 
-        self.saveSheet(res_sheet)
+        self.saveSheet(res_sheet, pathToSortie)
 
     # Demande à l'utilisateur si la première ligne des deux tableaux coincide
     def checkLine(self):
@@ -94,16 +94,16 @@ class Spreadsheet(object):
         try:
             sheet = ezodf.newdoc(doctype="ods", filename=pathToSheet)
         except PermissionError:
-            print("Le fichier sorties.ods est utilisé par un autre logiciel, impossible de le sauvegarder.")
+            print("Le fichier " + pathToSheet + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
             exit(0)
         return sheet
 
     # Try to save document, quit if error
-    def saveSheet(self, sheet):
+    def saveSheet(self, sheet, pathToSheet):
         try:
             sheet.save()
         except PermissionError:
-            print("Le fichier sorties.ods est utilisé par un autre logiciel, impossible de le sauvegarder.")
+            print("Le fichier " + pathToSheet + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
             exit(0)
     
     # Take a date string (format ISO 8601) and return a date
