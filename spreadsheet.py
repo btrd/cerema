@@ -151,7 +151,7 @@ class Spreadsheet(object):
             self.sortie[x, 0].set_value(time.hour)
 
     def addGauss(self):
-        name = "Laeq Gauss"
+        name = "Laeq"
         form = "=(F{x}+E{x})/2+0.0175*(F{x}-E{x})^2"
         self.addColumnFormula(name, form)
 
@@ -176,7 +176,9 @@ class Spreadsheet(object):
         self.addColumnFormula("Qeq", form)
 
     def addLaeqCalc(self):
-        form = "0"
+        lastR1 = str(self.sortie.nrows()+1)
+        lastR2 = str(self.sortie.nrows()+2)
+        form = "=IF(Q{x}=0;C" + lastR1 + "+10*LOG10(K{x}/N" + lastR1 + ");C" + lastR2 + "+10*LOG10(K{x}/O" + lastR1 + "))"
         self.addColumnFormula("Laeq calc", form)
 
     def addM(self):
