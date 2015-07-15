@@ -77,7 +77,7 @@ class Spreadsheet(object):
 
         if var != "Oui" and var != "O" and var != "":
             print("Le fichier trafic.ods doit être modifié pour correspondre au fichier bruit.ods")
-            exit(0)
+            exit(1)
 
     # Try to open document, quit if error
     def openSheet(self, pathToSheet):
@@ -85,7 +85,7 @@ class Spreadsheet(object):
             sheet = ezodf.opendoc(pathToSheet)
         except:
             print("Fichier " + pathToSheet + " introuvable")
-            exit(0)
+            exit(1)
         data = sheet.sheets[0]
         return data
 
@@ -95,7 +95,7 @@ class Spreadsheet(object):
             sheet = ezodf.newdoc(doctype="ods", filename=pathToSheet)
         except PermissionError:
             print("Le fichier " + pathToSheet + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
-            exit(0)
+            exit(1)
         return sheet
 
     # Try to save document, quit if error
@@ -104,7 +104,7 @@ class Spreadsheet(object):
             sheet.save()
         except PermissionError:
             print("Le fichier " + pathToSheet + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
-            exit(0)
+            exit(1)
     
     # Take a date string (format ISO 8601) and return a date
     def getDate(self, dateString):
@@ -116,7 +116,7 @@ class Spreadsheet(object):
                 time = datetime.strptime(dateString, "%Y-%m-%d")
             except ValueError:
                 print("La première colonne doit uniquement contenir des dates")
-                exit(0)
+                exit(1)
         return time
 
     # Add a column with a header and a formula
