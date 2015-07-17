@@ -6,10 +6,10 @@ from sys import exit
 from subprocess import call
 
 def check_requirements():
-    #check Python version
-    # if sys.version_info[0] != 2:
-    #     print("Cerema Script est uniquement compatible Python 2, vous utilisez Python " + str(sys.version_info[0]))
-    #     return False
+    # check Python version
+    if sys.version_info[0] != 2:
+        print("Cerema Script est uniquement compatible Python 2, vous utilisez Python " + str(sys.version_info[0]))
+        return False
 
     #check instalation ezodf
     try:
@@ -70,4 +70,4 @@ if __name__ == '__main__':
     Graph(pathToImg, pathToData)
 
     from report import Report
-    Report(pathToReport, pathToParam, pathData, pathToBruit)
+    Report(pathToReport, pathToParam, pathToBruit, pathToData)

@@ -1,6 +1,6 @@
 ## Requirements
 
-### [Python](https://www.python.org/downloads/)
+### [Python 2](https://www.python.org/downloads/)
 
 ### lxml
 www.lfd.uci.edu/~gohlke/pythonlibs/#lxml

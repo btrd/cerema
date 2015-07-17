@@ -59,21 +59,21 @@ class Spreadsheet(object):
     # Demande à l'utilisateur si la première ligne des deux tableaux coincide
     def checkLine(self):
         print("     _________________________________________________")
-        print()
+        print("")
         date = self.getDate(self.sortie[1, 0].value)
         var = "    | " + str(date) + " | "
         for x in range(1, self.sortie.ncols()):
             var = var + str(self.sortie[1, x].value) + " | "
         print(var)
         print("     _________________________________________________")
-        print()
+        print("")
         var = "    | "
         for x in range(0, self.trafic.ncols()):
             var = var + str(self.trafic[1, x].value) + " | "
         print(var)
         print("     _________________________________________________")
-        print()
-        var = input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
+        print("")
+        var = raw_input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
 
         if var != "Oui" and var != "O" and var != "":
             print("Le fichier trafic.ods doit être modifié pour correspondre au fichier bruit.ods")
@@ -130,13 +130,6 @@ class Spreadsheet(object):
 
     # Delete first 8 row of bruits
     def deleteData(self):
-        # self.startPeriod = self.bruits[2,1].value
-        # self.endPeriod = self.bruits[3,1].value
-        # self.lieu = self.bruits[4,1].value
-        # self.weighting = self.bruits[5,1].value
-        # self.bruitsType = self.bruits[6,1].value
-        # self.unit = self.bruits[7,1].value
-
         #suprimme les 8 premières lignes
         self.bruits.delete_rows(0, 8)
         #suprimme la dernière ligne
