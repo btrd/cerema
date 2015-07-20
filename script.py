@@ -3,13 +3,13 @@
 import sys
 import imp
 from sys import exit
-from subprocess import call
+from subprocess import call, PIPE
 
 def check_requirements():
     # check Python version
     if sys.version_info[0] != 2:
         print("Cerema Script est uniquement compatible Python 2, vous utilisez Python " + str(sys.version_info[0]))
-        return False
+        exit(1)
 
     #check instalation ezodf
     try:
@@ -26,21 +26,35 @@ def check_requirements():
 def convert_file():
     #converti ODS en CSV
     cmdConversion = "soffice --headless --convert-to csv --outdir " + pathData + " " + pathToSortie
-    return_code = call(cmdConversion, shell=True)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
     cmdConversion = "cp " + pathToSortieCsv + " " + pathToSortieCsv2
-    return_code = call(cmdConversion, shell=True)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortieCsv + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
     cmdConversion = "soffice --headless --convert-to ods --outdir " + pathData + " " + pathToSortieCsv2
-    return_code = call(cmdConversion, shell=True)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortieCsv2 + ", quittez LibreOffice et/ou OpenOffice")
+        exit(1)
+
+def clean():
+    return_code = call("rm " + pathToSortieCsv, shell=True, stdout=PIPE)
+    if return_code == 1:
+        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
+        exit(1)
+    return_code = call("rm " + pathToSortieCsv2, shell=True, stdout=PIPE)
+    if return_code == 1:
+        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
+        exit(1)
+    # return_code = call("rm " + pathToData, shell=True, stdout=PIPE)
+    if return_code == 1:
+        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
 if __name__ == '__main__':
@@ -71,3 +85,6 @@ if __name__ == '__main__':
 
     from report import Report
     Report(pathToReport, pathToParam, pathToBruit, pathToData)
+
+    # Clean data directory
+    clean()
