@@ -74,6 +74,7 @@ class Spreadsheet(object):
         print("     _________________________________________________")
         print("")
         var = raw_input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
+        print("")
 
         if var != "Oui" and var != "O" and var != "":
             print("Le fichier trafic.ods doit être modifié pour correspondre au fichier bruit.ods")

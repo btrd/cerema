@@ -26,33 +26,33 @@ def check_requirements():
 def convert_file():
     #converti ODS en CSV
     cmdConversion = "soffice --headless --convert-to csv --outdir " + pathData + " " + pathToSortie
-    return_code = call(cmdConversion, shell=True, stdout=PIPE)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
     cmdConversion = "cp " + pathToSortieCsv + " " + pathToSortieCsv2
-    return_code = call(cmdConversion, shell=True, stdout=PIPE)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortieCsv + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
     cmdConversion = "soffice --headless --convert-to ods --outdir " + pathData + " " + pathToSortieCsv2
-    return_code = call(cmdConversion, shell=True, stdout=PIPE)
+    return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortieCsv2 + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
 def clean():
-    return_code = call("rm " + pathToSortieCsv, shell=True, stdout=PIPE)
+    return_code = call("rm " + pathToSortieCsv, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
-    return_code = call("rm " + pathToSortieCsv2, shell=True, stdout=PIPE)
+    return_code = call("rm " + pathToSortieCsv2, shell=True)
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
-    # return_code = call("rm " + pathToData, shell=True, stdout=PIPE)
+    return_code = call("rm " + pathToData, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
@@ -75,6 +75,9 @@ if __name__ == '__main__':
     pathToReport = pathData + "/report.odt"
     pathToParam = pathData + "/param.ods"
 
+    pathToPic1 = pathData + "/pic1.jpg"
+    pathToPic2 = pathData + "/pic2.jpg"
+    
     from spreadsheet import Spreadsheet
     Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
 
@@ -84,7 +87,7 @@ if __name__ == '__main__':
     Graph(pathToImg, pathToData)
 
     from report import Report
-    Report(pathToReport, pathToParam, pathToBruit, pathToData)
+    Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2)
 
     # Clean data directory
     clean()
