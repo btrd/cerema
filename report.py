@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from lpod.document import odf_new_document
 from lpod.paragraph import odf_create_paragraph
 from lpod.style import odf_create_style
+from lpod.image import odf_create_image
+from lpod.frame import odf_create_image_frame
 from PIL import Image
 import glob, os
 
@@ -18,7 +20,7 @@ class Report(object):
 
         self.reportFile = odf_new_document("text")
         self.report = self.reportFile.get_body()
-        
+
         self.getDataBruit()
         
         self.formatSortie()
@@ -137,6 +139,14 @@ class Report(object):
         _style_bold = odf_create_style('text', name = u'bold', bold = True)
         self.reportFile.insert_style(_style_bold)
 
+        self.reportFile.delete_styles()
+        _style_bold = odf_create_style('paragraph', name = u'left', bold = True)
+        self.reportFile.insert_style(_style_bold)
+
+        self.reportFile.delete_styles()
+        _style_bold = odf_create_style('text', name = u'bold', bold = True)
+        self.reportFile.insert_style(_style_bold)
+
     def addText(self, text, style="", regex=".*"):
         paragraph = odf_create_paragraph()
         paragraph.append_plain_text(text)
@@ -147,15 +157,24 @@ class Report(object):
         filename1, ext1 = os.path.splitext(pathToPic1)
         filename2, ext2 = os.path.splitext(pathToPic2)
 
-        size = 595, 595
+        size = 350, 350
 
-        im = Image.open(pathToPic1)
-        im.thumbnail(size, Image.ANTIALIAS)
-        im.save(filename1 + "_small" + ext1, "JPEG")
+        im1 = Image.open(pathToPic1)
+        im1.thumbnail(size, Image.ANTIALIAS)
 
-        im = Image.open(pathToPic2)
-        im.thumbnail(size, Image.ANTIALIAS)
-        im.save(filename2 + "_small" + ext2, "JPEG")
+        im2 = Image.open(pathToPic2)
+        im2.thumbnail(size, Image.ANTIALIAS)
+
+        s = im1.size
+        new_im = Image.new('RGB', (s[0]*2, s[1]))
+
+        new_im.paste(im1, (0, 0))
+        new_im.paste(im2, (s[0], 0))
+
+        new_im.save("data/pic_merge.jpeg", "JPEG")
+
+        self.picRatio = (new_im.size[1] + 0.0)/(new_im.size[0] + 0.0)
+        self.picUrl = self.reportFile.add_file("data/pic_merge.jpeg")
 
     def addContent(self):
         text = "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y')
@@ -179,4 +198,13 @@ class Report(object):
 
         self.addText("LAeq(6h-22h) \t" + str(self.laeq6_22))
         self.addText("LAeq(22h-6h) \t" + str(self.laeq22_6))
-        
+
+        image = odf_create_image_frame(url = self.picUrl,
+            anchor_type = "paragraph",
+            name = "Photos",
+            size = ("17cm", str(17 * self.picRatio) + "cm")
+        )
+        p = odf_create_paragraph()
+        p.append_plain_text("")
+        p.append(image)
+        self.report.append(p)
