@@ -2,3 +2,8 @@
 ENV
 *.tmp
 data/*
+!data/bruit.ods
+!data/trafic.ods
+!data/laeq.jpg
+!data/pic1.jpg
+!data/pic2.jpg

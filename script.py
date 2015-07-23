@@ -31,7 +31,7 @@ def convert_file():
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
-        
+
     try:
         copyfile(pathToSortieCsv, pathToSortieCsv2)
     except Exception, e:
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     pathToData = pathData + "/sortie2.ods"
 
     pathToGraph1 = pathData + "/graph.png"
-    pathToGraph2 = pathData + "/LAeq.jpg"
+    pathToGraph2 = pathData + "/laeq.jpg"
 
     pathToReport = pathData + "/report.odt"
     pathToParam = pathData + "/param.ods"
