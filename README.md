@@ -11,3 +11,12 @@ On Windows you **first** need to install lxml manually, [download this file ***l
 
 ### 4. Add soffice to path (Windows only)
 Add `C:\Program Files\LibreOffice 4\program` to your path
+
+## Installation
+
+Move `Cerema` folder in `C:\Program Files\`.
+That's all :)
+
+## Usage
+
+***TODO***

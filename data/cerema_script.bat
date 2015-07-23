@@ -1,2 +1,2 @@
-python C:\Users\bertrand-j\Projets\cerema\script.py
+python "C:\Program Files\cerema\script.py"
 PAUSE
