@@ -1,3 +1,4 @@
 ezodf==0.3.0
 lxml==3.4.4
 wheel==0.24.0
+matplotlib==1.4.3
