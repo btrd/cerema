@@ -2,16 +2,16 @@
 # -*- coding: utf8 -*-
 import ezodf
 from datetime import datetime, timedelta
-from lpod.document import odf_new_document
+from lpod.document import odf_new_document, odf_get_document
 from lpod.paragraph import odf_create_paragraph
-from lpod.style import odf_create_style
+from lpod.style import odf_create_style, odf_master_page
 from lpod.image import odf_create_image
 from lpod.frame import odf_create_image_frame
 from PIL import Image
-import glob, os
+import os
 
 class Report(object):
-    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2):
+    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2):
         self.param = self.openSheet(pathToParam)
         self.bruit = self.openSheet(pathToBruit)
 
@@ -28,7 +28,9 @@ class Report(object):
 
         self.saveFileEzodf(sortieFile, pathToSortie)
 
-        self.formatImages(pathToPic1, pathToPic2)
+        self.formatPictures(pathToPic1, pathToPic2)
+        self.graph1Url = self.reportFile.add_file(pathToGraph1)
+        self.graph2Url = self.reportFile.add_file(pathToGraph2)
 
         self.addStyle()
         self.addContent()
@@ -153,7 +155,7 @@ class Report(object):
         paragraph.set_span(style, regex=regex)
         self.report.append(paragraph)
 
-    def formatImages(self, pathToPic1, pathToPic2):
+    def formatPictures(self, pathToPic1, pathToPic2):
         filename1, ext1 = os.path.splitext(pathToPic1)
         filename2, ext2 = os.path.splitext(pathToPic2)
 
@@ -171,10 +173,10 @@ class Report(object):
         new_im.paste(im1, (0, 0))
         new_im.paste(im2, (s[0], 0))
 
-        new_im.save("data/pic_merge.jpeg", "JPEG")
+        new_im.save("pic_merge.jpeg", "JPEG")
 
         self.picRatio = (new_im.size[1] + 0.0)/(new_im.size[0] + 0.0)
-        self.picUrl = self.reportFile.add_file("data/pic_merge.jpeg")
+        self.picUrl = self.reportFile.add_file("pic_merge.jpeg")
 
     def addContent(self):
         text = "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y')
@@ -201,10 +203,30 @@ class Report(object):
 
         image = odf_create_image_frame(url = self.picUrl,
             anchor_type = "paragraph",
-            name = "Photos",
+            name = "Photographie",
             size = ("17cm", str(17 * self.picRatio) + "cm")
         )
         p = odf_create_paragraph()
-        p.append_plain_text("")
         p.append(image)
         self.report.append(p)
+
+        self.addText("Évolution temporelle en Laeq par pas de 15 minutes (Laeq élémentaire 1 seconde).")
+        image = odf_create_image_frame(url = self.graph2Url,
+            anchor_type = "paragraph",
+            name = "Graphique",
+            size = ("17cm", "7cm")
+        )
+        p = odf_create_paragraph("")
+        p.append(image)
+        self.report.append(p)
+
+        image = odf_create_image_frame(url = self.graph1Url,
+            anchor_type = "paragraph",
+            name = "Graphique",
+            size = ("17cm", "7cm")
+        )
+        p = odf_create_paragraph()
+        p.append(image)
+        self.report.append(p)
+
+        self.reportFile.get_styles()[0].get_master_page().set_header("test")

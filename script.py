@@ -48,11 +48,18 @@ def clean():
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
+
     return_code = call("rm " + pathToSortieCsv2, shell=True)
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
+
     return_code = call("rm " + pathToData, shell=True, stdout=PIPE, stderr=PIPE)
+    if return_code == 1:
+        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
+        exit(1)
+
+    return_code = call("rm pic_merge.jpeg", shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
@@ -70,7 +77,8 @@ if __name__ == '__main__':
     pathToSortieCsv2 = pathData + "/sortie2.csv"
     pathToData = pathData + "/sortie2.ods"
 
-    pathToImg = pathData + "/graph.png"
+    pathToGraph1 = pathData + "/graph.png"
+    pathToGraph2 = pathData + "/LAeq.jpg"
 
     pathToReport = pathData + "/report.odt"
     pathToParam = pathData + "/param.ods"
@@ -84,10 +92,10 @@ if __name__ == '__main__':
     convert_file()
 
     from graph import Graph
-    Graph(pathToImg, pathToData)
+    Graph(pathToGraph1, pathToData)
 
     from report import Report
-    Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2)
+    Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2)
 
     # Clean data directory
     clean()
