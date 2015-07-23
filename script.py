@@ -25,19 +25,22 @@ def check_requirements():
 
 def convert_file():
     #converti ODS en CSV
-    cmdConversion = "soffice --headless --convert-to csv --outdir " + pathData + " " + pathToSortie
+    cmdConversion = "soffice --headless --convert-to csv " + pathToSortie
+    print cmdConversion
     return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
+    print "copyfile"
     try:
         copyfile(pathToSortieCsv, pathToSortieCsv2)
     except Exception, e:
         print("Erreur pendant la conversion de " + pathToSortieCsv + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
-    cmdConversion = "soffice --headless --convert-to ods --outdir " + pathData + " " + pathToSortieCsv2
+    cmdConversion = "soffice --headless --convert-to ods " + pathToSortieCsv2
+    print cmdConversion
     return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortieCsv2 + ", quittez LibreOffice et/ou OpenOffice")
@@ -50,45 +53,45 @@ def clean():
         os.remove(pathToData)
         os.remove("pic_merge.jpeg")
 
-        filelist = glob.glob(pathData + "/*.bak")
+        filelist = glob.glob("*.bak")
         for f in filelist:
             os.remove(f)
     except Exception, e:
-        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
+        print("Erreur pendant le nettoyage du dossier, quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
 if __name__ == '__main__':
     check_requirements()
 
-    pathData = "data"
+    pathToBruit = "bruit.ods"
+    pathToTrafic = "trafic.ods"
+    pathToSortie = "sortie.ods"
 
-    pathToBruit = pathData + "/bruit.ods"
-    pathToTrafic = pathData + "/trafic.ods"
-    pathToSortie = pathData + "/sortie.ods"
+    pathToSortieCsv = "sortie.csv"
+    pathToSortieCsv2 = "sortie2.csv"
+    pathToData = "sortie2.ods"
 
-    pathToSortieCsv = pathData + "/sortie.csv"
-    pathToSortieCsv2 = pathData + "/sortie2.csv"
-    pathToData = pathData + "/sortie2.ods"
+    pathToGraph1 = "graph.png"
+    pathToGraph2 = "laeq.jpg"
 
-    pathToGraph1 = pathData + "/graph.png"
-    pathToGraph2 = pathData + "/laeq.jpg"
+    pathToReport = "report.odt"
+    pathToParam = "param.ods"
 
-    pathToReport = pathData + "/report.odt"
-    pathToParam = pathData + "/param.ods"
-
-    pathToPic1 = pathData + "/pic1.jpg"
-    pathToPic2 = pathData + "/pic2.jpg"
+    pathToPic1 = "pic1.jpg"
+    pathToPic2 = "pic2.jpg"
     
     from spreadsheet import Spreadsheet
     Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
-
+    print "Done spreadsheet"
     convert_file()
-
+    print "Done convert file"
     from graph import Graph
     Graph(pathToGraph1, pathToData)
+    print "Done graph"
 
     from report import Report
     Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2)
+    print "Done report"
 
     # Clean data directory
     clean()

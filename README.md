@@ -8,3 +8,6 @@ On Windows you **first** need to install lxml manually, [download this file ***l
 
 ### 3. lpod
 [Download the version here](https://github.com/btrd/lpod-python) (the [official](https://github.com/lpod/lpod-python) version contains bugs), then follow the `INSTALL` file for the installation.
+
+### 4. Add soffice to path (Windows only)
+Add `C:\Program Files\LibreOffice 4\program` to your path
