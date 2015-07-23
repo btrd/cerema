@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-import sys
-import imp
+import sys, glob, imp, os
 from sys import exit
 from subprocess import call, PIPE
 from shutil import copyfile
@@ -45,23 +44,16 @@ def convert_file():
         exit(1)
 
 def clean():
-    return_code = call("rm " + pathToSortieCsv, shell=True, stdout=PIPE, stderr=PIPE)
-    if return_code == 1:
-        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
-        exit(1)
+    try:
+        os.remove(pathToSortieCsv)
+        os.remove(pathToSortieCsv2)
+        os.remove(pathToData)
+        os.remove("pic_merge.jpeg")
 
-    return_code = call("rm " + pathToSortieCsv2, shell=True)
-    if return_code == 1:
-        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
-        exit(1)
-
-    return_code = call("rm " + pathToData, shell=True, stdout=PIPE, stderr=PIPE)
-    if return_code == 1:
-        print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
-        exit(1)
-
-    return_code = call("rm pic_merge.jpeg", shell=True, stdout=PIPE, stderr=PIPE)
-    if return_code == 1:
+        filelist = glob.glob(pathData + "/*.bak")
+        for f in filelist:
+            os.remove(f)
+    except Exception, e:
         print("Erreur pendant le nettoyage du dossier " + pathData + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
