@@ -229,4 +229,4 @@ class Report(object):
         p.append(image)
         self.report.append(p)
 
-        self.reportFile.get_styles()[0].get_master_page().set_header("test")
+        # self.reportFile.get_styles()[0].get_master_page().set_header("test")

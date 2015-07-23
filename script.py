@@ -4,6 +4,7 @@ import sys
 import imp
 from sys import exit
 from subprocess import call, PIPE
+from shutil import copyfile
 
 def check_requirements():
     # check Python version
@@ -30,10 +31,10 @@ def convert_file():
     if return_code == 1:
         print("Erreur pendant la conversion de " + pathToSortie + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
-
-    cmdConversion = "cp " + pathToSortieCsv + " " + pathToSortieCsv2
-    return_code = call(cmdConversion, shell=True, stdout=PIPE, stderr=PIPE)
-    if return_code == 1:
+        
+    try:
+        copyfile(pathToSortieCsv, pathToSortieCsv2)
+    except Exception, e:
         print("Erreur pendant la conversion de " + pathToSortieCsv + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
