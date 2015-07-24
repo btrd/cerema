@@ -19,3 +19,7 @@ Déplacer le dossier `Cerema` dans `C:\Program Files\`.
 # Usage
 
 Copier/coller le fichier `cerema_script.bat` dans le dossier contenant vos fichiers sources (bruit.ods, laeq.jpg, pic1.jpg, pic2.jpg, trafic.ods), puis double cliquer sur le fichier `bat`.
+
+# Example
+
+Utilisez le dossier `data`.
