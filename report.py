@@ -171,10 +171,14 @@ class Report(object):
         _style_bold = odf_create_style('text', name = u'bold', bold = True)
         self.reportFile.insert_style(_style_bold)
 
+        _style_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
+        self.reportFile.insert_style(_style_bold)
+
     # rajoute un paragraphe avec un style appliqué sur tout le paragraphe par défaut
     def addText(self, text, style="", regex=".*"):
         paragraph = odf_create_paragraph()
         paragraph.append_plain_text(text)
+        regex = unicode(regex, 'utf-8')
         paragraph.set_span(style, regex=regex)
         self.report.append(paragraph)
 
@@ -214,8 +218,21 @@ class Report(object):
 
         self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
-        self.addText("Évolution temporelle en Laeq par pas de 15 minutes (Laeq élémentaire 1 seconde).")
+        self.addText("\tÉvolution temporelle en Laeq par pas de 15 minutes (Laeq élémentaire 1 seconde).\n", style="red_bold")
         
-        self.addImage(self.graph2Url, "Graphique")
+        self.addImage(self.graph2Url, "laeq 15min")
 
-        self.addImage(self.graph1Url, "Graphique")
+        self.addText("Remarque : \n", style="bold", regex="Remarque :")
+
+        self.addText("La validation des résultats des mesurages fait l’objet de tests :")
+        self.addText("\n\t•\tTest temporel : continuité du signal\n", style="bold", regex="Test temporel :")
+        self.addText("Certains évènements particuliers ont été isolés par codage. Test réalisé par l’opérateur.")
+        self.addText("\n\t•\tTest statistique : répartition gaussienne du bruit du trafic routier\n", style="bold", regex="Test statistique :")
+
+        text = "Semaine du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d %B %Y') + " de " + str(self.startPeriod.hour) + "h à " + str(self.endPeriod.hour) + "h"
+        self.addText(text, style="bold")
+
+        self.addImage(self.graph1Url, "recalage trafic")
+
+        self.addText("•  Corrélation bruit/trafic :", style="bold")
+        self.addText("\n\n")

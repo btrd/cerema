@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-import sys, glob, imp, os
+import sys, glob, imp, os, locale
 from sys import exit
 from subprocess import call, PIPE
 from shutil import copyfile
@@ -106,6 +106,8 @@ def getPathToReport(pathToReport):
     return pathToReport
 
 if __name__ == '__main__':
+    # set locale to fr
+    locale.setlocale(locale.LC_ALL, 'fr_fr')
 
     # on parse les arguments passé en ligne de commande
     parser = argparse.ArgumentParser()
