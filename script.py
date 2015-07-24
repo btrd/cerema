@@ -107,7 +107,15 @@ def getPathToReport(pathToReport):
 
 if __name__ == '__main__':
     # set locale to fr
-    locale.setlocale(locale.LC_ALL, 'fr_fr')
+    try:
+        #UNIX
+        locale.setlocale(locale.LC_ALL, 'fr_fr')
+    except Exception, e:
+        try:
+            #WINDOWS
+            locale.setlocale(locale.LC_ALL, 'fra_fra')
+        except Exception, e:
+            raise e
 
     # on parse les arguments passé en ligne de commande
     parser = argparse.ArgumentParser()
