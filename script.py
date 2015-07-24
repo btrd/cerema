@@ -153,3 +153,6 @@ if __name__ == '__main__':
     clean()
 
     print "Rapport créé sous " + pathToReport
+    #si on est en mode dev on quit direct sinon on attend un retour utilisateur (sous windows la fenêtre se referme directement sinon)
+    if not args.dev:
+        raw_input("(touche entrée pour quitter)")
