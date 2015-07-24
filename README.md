@@ -1,15 +1,16 @@
 # Requis
 
 ### 1. [Python 2](https://www.python.org/downloads/)
-### 2. Autres
+### 2. [Libre Office](http://www.libreoffice.org/download)
+### 3. Autres
     pip install -r requirements.txt
 
 Sous Windows installer **d'abord**  lxml, [télécharger le fichier ***lxml-3.4.4-CP27***](www.lfd.uci.edu/~gohlke/pythonlibs/#lxml) puis installer avec `pip install <file>`
 
-### 3. lpod
+### 4. lpod
 [Télécharger la version ici](https://github.com/btrd/lpod-python) (la version [officielle](https://github.com/lpod/lpod-python) contient des bugs), puis suiver le fichier `INSTALL` pour l'installation.
 
-### 4. Ajouter LibreOffice au path (Windows uniquement)
+### 5. Ajouter LibreOffice au path (Windows uniquement)
 Ajouter `C:\Program Files\LibreOffice 4\program` à votre path
 
 # Installation
