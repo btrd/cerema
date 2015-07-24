@@ -76,7 +76,7 @@ class Spreadsheet(object):
         print("     _________________________________________________")
         print("")
 
-        var = raw_input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
+        var = raw_input("    Les deux lignes coincident ? (Oui/non): ").capitalize()
         print("")
 
         if var != "Oui" and var != "O" and var != "":

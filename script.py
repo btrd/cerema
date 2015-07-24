@@ -135,13 +135,13 @@ if __name__ == '__main__':
     pathToSortieCsv2 = pathData + "sortie2.csv"
     pathToData = pathData + "sortie2.ods"
 
-    pathToGraph1 = pathData + "graph.png"
-    pathToGraph2 = pathData + "laeq.jpg"
+    pathToGraph1 = pathData + "recalage_trafic.png"
+    pathToGraph2 = pathData + "laeq_15min.jpg"
 
     pathToParam = pathData + "param.ods"
 
-    pathToPic1 = pathData + "pic1.jpg"
-    pathToPic2 = pathData + "pic2.jpg"
+    pathToPic1 = pathData + "vue_facade.jpg"
+    pathToPic2 = pathData + "vue_dessus.jpg"
 
     pathToReport = getPathToReport(pathData + "report.odt")
 

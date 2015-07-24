@@ -4,7 +4,7 @@ ENV
 data/*
 !data/bruit.ods
 !data/trafic.ods
-!data/laeq.jpg
-!data/pic1.jpg
-!data/pic2.jpg
+!data/laeq_15min.jpg
+!data/vue_facade.jpg
+!data/vue_dessus.jpg
 !data/cerema_script.bat
