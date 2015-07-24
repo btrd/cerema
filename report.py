@@ -42,14 +42,14 @@ class Report(object):
         try:
             doc.save()
         except PermissionError:
-            print("Le fichier " + pathToDoc + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
+            print("Le fichier " + pathToDoc + " est utilise par un autre logiciel, impossible de le sauvegarder.")
             exit(1)
 
     def saveFileLpod(self, doc, pathToDoc):
         try:
             doc.save(target=pathToDoc)
         except PermissionError:
-            print("Le fichier " + pathToDoc + " est utilisé par un autre logiciel, impossible de le sauvegarder.")
+            print("Le fichier " + pathToDoc + " est utilise par un autre logiciel, impossible de le sauvegarder.")
             exit(1)
 
     # Try to open sheet document, quit if error, returns sheet
@@ -135,7 +135,7 @@ class Report(object):
             try:
                 time = datetime.strptime(dateString, "%Y-%m-%d")
             except ValueError:
-                print("La première colonne doit uniquement contenir des dates")
+                print("La premiere colonne doit uniquement contenir des dates")
                 exit(1)
         return time
 
