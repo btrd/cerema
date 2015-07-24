@@ -4,6 +4,7 @@ import csv
 import ezodf
 import matplotlib.pyplot as mpl
 
+#create Graph from Spreadsheet
 class Graph(object):
     def __init__(self, pathToImg, pathToData):
 

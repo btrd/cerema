@@ -43,10 +43,15 @@ def fileNeeded(path):
         exit(1)
 
 
+# converti pathToSortie en pathToData (pathToData équivalent à pathToSortie mais les formules sont remplacé par les valeurs)
+# on utilise LibreOffice en ligne de commande pour faire la conversion vers du CSV puis de nouveau vers de l'ods
+# soffice ne permet pas de préciser un nom de fichier de sortie... donc on copie le fichier CSV
 def convert_file():
-    #converti ODS en CSV
+
+    #si on utilise le dossier local
     if pathData == "":
         cmdConversion = "soffice --headless --convert-to csv " + pathToSortie
+    #dans le cas contraire
     else:
         cmdConversion = "soffice --headless --convert-to csv --outdir data " + pathToSortie
 
@@ -70,6 +75,7 @@ def convert_file():
         print("Erreur pendant la conversion de " + pathToSortieCsv2 + ", quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
+# supprime les fichiers temporaires
 def clean():
     try:
         os.remove(pathToSortieCsv)
@@ -84,8 +90,9 @@ def clean():
         print("Erreur pendant le nettoyage du dossier, quittez LibreOffice et/ou OpenOffice")
         exit(1)
 
-#si un fichier existe déjà on créé une nouvelle version
+#si un fichier report existe déjà on créé une nouvelle version
 def getPathToReport(pathToReport):
+    # si le fichier existe on cherche un nom qui n'existe pas encore en concatenant 1 ou 2 ou 3, etc
     if os.path.isfile(pathToReport):
         notFound = True;
         name, ext = os.path.splitext(pathToReport)
@@ -100,11 +107,13 @@ def getPathToReport(pathToReport):
 
 if __name__ == '__main__':
 
+    # on parse les arguments passé en ligne de commande
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dev", action="store_true", help="Dev environment")
     parser.add_argument("-c", "--clean", action="store_true", help="Only clean dev environment (require option --dev)")
     args = parser.parse_args()
 
+    # si option dev on utilise le dossier data et on envoie les erreurs vers le terminal
     if args.dev:
         if args.clean:
             clean()
@@ -112,6 +121,7 @@ if __name__ == '__main__':
         pathData = "data/"
         stderr = None
         stdout = None
+    # sinon on utilise le dossier courant et on cache les erreurs
     else:
         pathData = ""
         stderr = PIPE
@@ -133,19 +143,21 @@ if __name__ == '__main__':
     pathToPic1 = pathData + "pic1.jpg"
     pathToPic2 = pathData + "pic2.jpg"
 
-    pathToReport = pathData + "report.odt"
-    pathToReport = getPathToReport(pathToReport)
+    pathToReport = getPathToReport(pathData + "report.odt")
 
     check_requirements()
     
+    #on créé sortie.ods
     from spreadsheet import Spreadsheet
     Spreadsheet(5, pathToBruit, pathToTrafic, pathToSortie)
     
     convert_file()
 
+    # on créé graph.png
     from graph import Graph
     Graph(pathToGraph1, pathToData)
 
+    # on créé le raport
     from report import Report
     Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2)
 

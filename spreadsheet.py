@@ -54,10 +54,12 @@ class Spreadsheet(object):
         self.addEqVLPL()
         self.addNbrJour()
 
+        #enregistre le fichier
         self.saveSheet(res_sheet, pathToSortie)
 
     # Demande à l'utilisateur si la première ligne des deux tableaux coincide
     def checkLine(self):
+        # Affiche les premières lignes
         print("     _________________________________________________")
         print("")
         date = self.getDate(self.sortie[1, 0].value)
@@ -73,6 +75,7 @@ class Spreadsheet(object):
         print(var)
         print("     _________________________________________________")
         print("")
+
         var = raw_input("    Les deux lignes coincide ? (Oui/non): ").capitalize()
         print("")
 
@@ -124,10 +127,12 @@ class Spreadsheet(object):
     def addColumnFormula(self, name, data):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value(name)
-        for x in range(1, self.sortie.nrows()):
-            to = {'x': str(x+1)}
+        for i in range(1, self.sortie.nrows()):
+            #si la formule comporte un {x} on remplace par i
+            to = {'x': str(i+1)}
             form = data.format(**to)
-            self.sortie[x, self.sortie.ncols()-1].formula = form
+
+            self.sortie[i, self.sortie.ncols()-1].formula = form
 
     # Delete first 8 row of bruits
     def deleteData(self):
@@ -153,12 +158,14 @@ class Spreadsheet(object):
         form = "=C{x}-G{x}"
         self.addColumnFormula("d", form)
 
+    #copie la colonne VL de traffic dans sortie
     def addVL(self):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value("VL")
         for x in range(1, self.sortie.nrows()):
             self.sortie[x, self.sortie.ncols()-1].set_value(self.trafic[x,1].value)
 
+    #copie la colonne PL de traffic dans sortie
     def addPL(self):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value("PL")
@@ -272,11 +279,13 @@ class Spreadsheet(object):
     def addNbrJour(self):
         self.sortie[self.sortie.nrows()-1, 3].set_value("Nbr jour")
 
+        #date de début
         cell1 = self.sortie[1, 1].value
         d1 = self.getDate(cell1)
 
+        #date de fin
         cell2 = self.sortie[self.sortie.nrows()-5, 1].value
-        #ajoute 1h car heure de début de la période et non de fin
+        #ajoute 1h car cell2 est l'heure de début de la période et non l'heure de fin
         d2 = self.getDate(cell2) + timedelta(hours=1)
 
         nbrDays = (d2-d1).days

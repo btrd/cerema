@@ -10,6 +10,7 @@ from lpod.frame import odf_create_image_frame
 from PIL import Image
 import os
 
+# Crée le raport
 class Report(object):
     def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2):
         self.param = self.openSheet(pathToParam)
@@ -70,6 +71,7 @@ class Report(object):
             exit(1)
         return doc
 
+    # Récupère les informations nécessaires dans bruit
     def getDataBruit(self):
         self.startPeriod = self.getDate(self.bruit[2,1].value)
         self.endPeriod = self.getDate(self.bruit[3,1].value)
@@ -92,22 +94,28 @@ class Report(object):
         self.sortie[self.sortie.nrows()-1, 3] = emtptyCell3
 
         # change le nombre de décimale après la virgule
+        # sur les colonnes 5 et 6
         for j in [5, 6]:
             for i in range(1, self.sortie.nrows()-4):
                 self.roundCell(i, j, 1)
 
-        # (6h - 22h)
+        # sur (6h - 22h)
         self.roundCell(self.sortie.nrows()-4, 1, 1)
-        # (22h - 6h)
+        # sur (22h - 6h)
         self.roundCell(self.sortie.nrows()-3, 1, 1)
-        # V/jour VL
+        # sur V/jour VL
         self.roundCell(self.sortie.nrows()-3, 7, 0)
-        # V/jour PL
+        # sur V/jour PL
         self.roundCell(self.sortie.nrows()-3, 8, 0)
-        # % PL
+        # sur % PL
         self.roundCell(self.sortie.nrows()-1, 8, 1)
 
+    #arrondie la valeur de la cell [i, j] à n décimale après la virgule
+    def roundCell(self, i, j, n):
+        value = round(self.sortie[i, j].value, n)
+        self.sortie[i, j].set_value(value)
 
+    # Récupère les informations nécessaires dans sortie
     def getDataSortie(self):
         self.laeq6_22 = self.sortie[self.sortie.nrows()-4, 1].value
         self.laeq22_6 = self.sortie[self.sortie.nrows()-3, 1].value
@@ -117,11 +125,6 @@ class Report(object):
 
         self.pourcPL = self.sortie[self.sortie.nrows()-1, 8].value
         self.nbrVehicule = self.sortie[self.sortie.nrows()-2, 8].value
-
-    #arrondie la valeur de la cell [i, j] à n décimale après la virgule
-    def roundCell(self, i, j, n):
-        value = round(self.sortie[i, j].value, n)
-        self.sortie[i, j].set_value(value)
 
     # Take a date string (format ISO 8601) and return a date
     def getDate(self, dateString):
@@ -136,48 +139,57 @@ class Report(object):
                 exit(1)
         return time
 
-    def addStyle(self):
-        self.reportFile.delete_styles()
-        _style_bold = odf_create_style('text', name = u'bold', bold = True)
-        self.reportFile.insert_style(_style_bold)
-
-        self.reportFile.delete_styles()
-        _style_bold = odf_create_style('paragraph', name = u'left', bold = True)
-        self.reportFile.insert_style(_style_bold)
-
-        self.reportFile.delete_styles()
-        _style_bold = odf_create_style('text', name = u'bold', bold = True)
-        self.reportFile.insert_style(_style_bold)
-
-    def addText(self, text, style="", regex=".*"):
-        paragraph = odf_create_paragraph()
-        paragraph.append_plain_text(text)
-        paragraph.set_span(style, regex=regex)
-        self.report.append(paragraph)
-
+    # redimensionne les 2 photos et les fusionnent en une image
     def formatPictures(self, pathToPic1, pathToPic2):
-        filename1, ext1 = os.path.splitext(pathToPic1)
-        filename2, ext2 = os.path.splitext(pathToPic2)
-
         size = 350, 350
 
+        # redimensionne pic1
         im1 = Image.open(pathToPic1)
         im1.thumbnail(size, Image.ANTIALIAS)
 
+        # redimensionne pic2
         im2 = Image.open(pathToPic2)
         im2.thumbnail(size, Image.ANTIALIAS)
 
-        s = im1.size
-        new_im = Image.new('RGB', (s[0]*2, s[1]))
+        s1 = im1.size
+        s2 = im2.size
+        #créé une image de la taille de pic1+pic2 en largeur et du max entre pic1, pic2 en hauteur
+        new_im = Image.new('RGB', (s1[0]+s2[0], max(s1[1],s2[1])) )
 
+        #colle pic1 et pic2 dans la nouvelle image
         new_im.paste(im1, (0, 0))
-        new_im.paste(im2, (s[0], 0))
+        new_im.paste(im2, (s1[0], 0))
 
         new_im.save("pic_merge.jpeg", "JPEG")
 
         self.picRatio = (new_im.size[1] + 0.0)/(new_im.size[0] + 0.0)
         self.picUrl = self.reportFile.add_file("pic_merge.jpeg")
 
+    # rajoute les styles utilisé dans le document
+    def addStyle(self):
+        self.reportFile.delete_styles()
+        _style_bold = odf_create_style('text', name = u'bold', bold = True)
+        self.reportFile.insert_style(_style_bold)
+
+    # rajoute un paragraphe avec un style appliqué sur tout le paragraphe par défaut
+    def addText(self, text, style="", regex=".*"):
+        paragraph = odf_create_paragraph()
+        paragraph.append_plain_text(text)
+        paragraph.set_span(style, regex=regex)
+        self.report.append(paragraph)
+
+    # rajoute une image à report 
+    def addImage(self, url, name="", size=("17cm", "7cm")):
+        image = odf_create_image_frame(url = url,
+            anchor_type = "paragraph",
+            name = name,
+            size = size
+        )
+        p = odf_create_paragraph("")
+        p.append(image)
+        self.report.append(p)
+
+    # rajoute le contenu dans report
     def addContent(self):
         text = "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y')
         self.addText(text, style="bold", regex = "Traffic")
@@ -185,8 +197,7 @@ class Report(object):
         text = "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%"
         self.addText(text, style="bold")
 
-        text = "Résultats des mesures"
-        self.addText(text, style="bold")
+        self.addText("Résultats des mesures", style="bold")
 
         self.addText("Lieu \t\t\t" + self.lieu)
         self.addText("Type de données \t" + self.dataType)
@@ -201,32 +212,10 @@ class Report(object):
         self.addText("LAeq(6h-22h) \t" + str(self.laeq6_22))
         self.addText("LAeq(22h-6h) \t" + str(self.laeq22_6))
 
-        image = odf_create_image_frame(url = self.picUrl,
-            anchor_type = "paragraph",
-            name = "Photographie",
-            size = ("17cm", str(17 * self.picRatio) + "cm")
-        )
-        p = odf_create_paragraph()
-        p.append(image)
-        self.report.append(p)
+        self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
         self.addText("Évolution temporelle en Laeq par pas de 15 minutes (Laeq élémentaire 1 seconde).")
-        image = odf_create_image_frame(url = self.graph2Url,
-            anchor_type = "paragraph",
-            name = "Graphique",
-            size = ("17cm", "7cm")
-        )
-        p = odf_create_paragraph("")
-        p.append(image)
-        self.report.append(p)
+        
+        self.addImage(self.graph2Url, "Graphique")
 
-        image = odf_create_image_frame(url = self.graph1Url,
-            anchor_type = "paragraph",
-            name = "Graphique",
-            size = ("17cm", "7cm")
-        )
-        p = odf_create_paragraph()
-        p.append(image)
-        self.report.append(p)
-
-        # self.reportFile.get_styles()[0].get_master_page().set_header("test")
+        self.addImage(self.graph1Url, "Graphique")
