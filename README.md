@@ -1,22 +1,21 @@
-## Requirements
+# Requis
 
 ### 1. [Python 2](https://www.python.org/downloads/)
-### 2. Others
+### 2. Autres
     pip install -r requirements.txt
 
-On Windows you **first** need to install lxml manually, [download this file ***lxml‑3.4.4‑cp27***](www.lfd.uci.edu/~gohlke/pythonlibs/#lxml)  install whith `pip install <file>`
+Sous Windows installer **d'abord**  lxml, [télécharger le fichier ***lxml-3.4.4-CP27***](www.lfd.uci.edu/~gohlke/pythonlibs/#lxml) puis installer avec `pip install <file>`
 
 ### 3. lpod
-[Download the version here](https://github.com/btrd/lpod-python) (the [official](https://github.com/lpod/lpod-python) version contains bugs), then follow the `INSTALL` file for the installation.
+[Télécharger la version ici](https://github.com/btrd/lpod-python) (la version [officielle](https://github.com/lpod/lpod-python) contient des bugs), puis suiver le fichier `INSTALL` pour l'installation.
 
-### 4. Add soffice to path (Windows only)
-Add `C:\Program Files\LibreOffice 4\program` to your path
+### 4. Ajouter LibreOffice au path (Windows uniquement)
+Ajouter `C:\Program Files\LibreOffice 4\program` à votre path
 
-## Installation
+# Installation
 
-Move `Cerema` folder in `C:\Program Files\`.
-That's all :)
+Déplacer le dossier `Cerema` dans `C:\Program Files\`.
 
-## Usage
+# Usage
 
-***TODO***
+Copier/coller le fichier `cerema_script.bat` dans le dossier contenant vos fichiers sources (bruit.ods, laeq.jpg, pic1.jpg, pic2.jpg, trafic.ods), puis double cliquer sur le fichier `bat`.
