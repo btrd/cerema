@@ -236,7 +236,7 @@ class Spreadsheet(object):
         form = "=IF(A{x}>17;IF(A{x}<22;10^((C{x})/10);0);0)"
         self.addColumnFormula("Puissance acoustique Soir (18h-22h)", form)
 
-        form = "=SUM(V2:V" + str(self.sortie.nrows()-4) + ")"
+        form = "=SUM(V2:V" + str(self.sortie.nrows()-4) + ")/W" + str(self.sortie.nrows()-3)
         self.sortie[self.sortie.nrows()-4, 21].formula = form
 
     def addNbSoir(self):
@@ -275,6 +275,11 @@ class Spreadsheet(object):
         self.sortie[self.sortie.nrows()-3, 1].set_value("(22h - 6h)")
         form = "=10*LOG10(S" + str(self.sortie.nrows()-3) + ")"
         self.sortie[self.sortie.nrows()-3, 2].formula = form
+
+        self.sortie[self.sortie.nrows()-2, 1].set_value("Lden")
+        lastRow = str(self.sortie.nrows()-3)
+        form = "=10*LOG10((16*R" + lastRow + "-4*V" + lastRow + ")/24+4/24*V" + lastRow + "*10^(5/10)+8/24*S" + lastRow + "*10^(10/10))-3"
+        self.sortie[self.sortie.nrows()-2, 2].formula = form
 
     def addEqVLPL(self):
         self.sortie[self.sortie.nrows()-1, 0].set_value("Equivalence VL-PL")
