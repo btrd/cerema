@@ -153,7 +153,10 @@ if __name__ == '__main__':
     pathToPic1 = pathData + "vue_facade.jpg"
     pathToPic2 = pathData + "vue_dessus.jpg"
 
-    pathToReport = getPathToReport(pathData + "report.odt")
+    if args.dev:
+        pathToReport = pathData + "report.odt"
+    else:
+        pathToReport = getPathToReport(pathData + "report.odt")
 
     check_requirements()
     

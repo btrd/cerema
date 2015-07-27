@@ -3,10 +3,12 @@
 import ezodf
 from datetime import datetime, timedelta
 from lpod.document import odf_new_document, odf_get_document
+from lpod.element import odf_create_element
 from lpod.paragraph import odf_create_paragraph
-from lpod.style import odf_create_style, odf_master_page
+from lpod.style import odf_create_style, odf_master_page, odf_create_table_cell_style
 from lpod.image import odf_create_image
 from lpod.frame import odf_create_image_frame
+from lpod.table import odf_create_table, odf_create_row, odf_create_cell
 from PIL import Image
 import os
 
@@ -82,7 +84,7 @@ class Report(object):
 
     def formatSortie(self):
         # enlève les colonnes à ne pas afficher
-        self.sortie.delete_columns(index=10, count=11)
+        self.sortie.delete_columns(index=10, count=13)
         self.sortie.delete_columns(index=0, count=1)
 
         # enlève les infos à ne pas afficher
@@ -109,6 +111,8 @@ class Report(object):
         self.roundCell(self.sortie.nrows()-3, 8, 0)
         # sur % PL
         self.roundCell(self.sortie.nrows()-1, 8, 1)
+        # sur lden
+        self.roundCell(self.sortie.nrows()-2, 1, 1)
 
     #arrondie la valeur de la cell [i, j] à n décimale après la virgule
     def roundCell(self, i, j, n):
@@ -120,7 +124,7 @@ class Report(object):
         self.laeq6_22 = self.sortie[self.sortie.nrows()-4, 1].value
         self.laeq22_6 = self.sortie[self.sortie.nrows()-3, 1].value
 
-        self.lden = self.laeq6_22
+        self.lden = self.sortie[self.sortie.nrows()-2, 1].value
         self.lnight = self.laeq22_6 - 3
 
         self.pourcPL = self.sortie[self.sortie.nrows()-1, 8].value
@@ -135,8 +139,11 @@ class Report(object):
             try:
                 time = datetime.strptime(dateString, "%Y-%m-%d")
             except ValueError:
-                print("La premiere colonne doit uniquement contenir des dates")
-                exit(1)
+                try:
+                    time = datetime.strptime(dateString, "%d/%m/%Y %H:%M:%S")
+                except ValueError:
+                    print("La premiere colonne doit uniquement contenir des dates")
+                    exit(1)
         return time
 
     # redimensionne les 2 photos et les fusionnent en une image
@@ -171,8 +178,8 @@ class Report(object):
         _style_bold = odf_create_style('text', name = u'bold', bold = True)
         self.reportFile.insert_style(_style_bold)
 
-        _style_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
-        self.reportFile.insert_style(_style_bold)
+        _style_red_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
+        self.reportFile.insert_style(_style_red_bold)
 
     # rajoute un paragraphe avec un style appliqué sur tout le paragraphe par défaut
     def addText(self, text, style="", regex=".*"):
@@ -192,6 +199,64 @@ class Report(object):
         p = odf_create_paragraph("")
         p.append(image)
         self.report.append(p)
+
+    def addTable(self):
+        table = odf_create_table(u"Table")
+        self.report.append(table)
+
+        _red_style = odf_create_table_cell_style(background_color = 'red')
+        red_style = self.reportFile.insert_style(_red_style, automatic=True)
+
+        _default_style = odf_create_table_cell_style(border = '0.03pt solid #000000')
+        default_style = self.reportFile.insert_style(_default_style, automatic=True)
+        
+        _style_small = odf_create_element(u"""\
+        <style:style style:name="small_txt" style:family="table-cell" style:class="text">
+            <style:text-properties fo:font-size="10pt"/>
+        </style:style>""")
+        self.reportFile.insert_style(_style_small)
+
+        _style_width = odf_create_element(u"""
+            <style:style style:family="table-column" style:name="colDate">
+                <style:table-column-properties style:column-width="3.4cm" style:rel-column-width="13107*"/>
+            </style:style>
+        """)
+        self.reportFile.insert_style(_style_width, automatic=True)
+        _style_width = odf_create_element(u"""
+            <style:style style:family="table-column" style:name="colNotDate">
+                <style:table-column-properties style:column-width="1.7cm" style:rel-column-width="6553.5*"/>
+            </style:style>
+        """)
+        self.reportFile.insert_style(_style_width, automatic=True)
+
+        for i in xrange(0, self.sortie.nrows()):
+            row = odf_create_row()
+            for j in xrange(0, self.sortie.ncols()):
+                cell = odf_create_cell()
+                cell.set_style("small_txt")
+                cell.set_style(_default_style)
+                if j == 0 and i < self.sortie.nrows()-4 and i > 0:
+                    value = self.getDate(self.sortie[i, j].value).strftime('%d/%m/%Y %Hh')
+                    cell.set_value(value)
+                elif j == 6 and i > 0 and i < self.sortie.nrows()-4 and self.sortie[i, j].value > 1:
+                    cell.set_style(red_style)
+                    cell.set_value(self.sortie[i, j].value)
+                elif (j == 7 or j == 8) and i > 0 and i < self.sortie.nrows()-2 :
+                    cell.set_value(int(self.sortie[i, j].value))
+                else:
+                    cell.set_value(self.sortie[i, j].value)
+                row.set_cell(j, cell)
+            table.set_row(i, row)
+
+        first = True
+        for column in table.get_columns():
+            if first:
+                column.set_style("colDate")
+                table.set_column(column.x, column)
+                first = False
+            else:
+                column.set_style("colNotDate")
+                table.set_column(column.x, column)
 
     # rajoute le contenu dans report
     def addContent(self):
@@ -236,3 +301,5 @@ class Report(object):
 
         self.addText("•  Corrélation bruit/trafic :", style="bold")
         self.addText("\n\n")
+
+        self.addTable()
