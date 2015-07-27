@@ -20,6 +20,9 @@ class Spreadsheet(object):
 
         self.checkLine()
 
+        #ajoute 4 lignes pour y ajouter les infos
+        self.sortie.append_rows(4)
+
         #ajoute les colonnes contenant les formules
         self.addHours()
         self.addGauss()
@@ -28,26 +31,19 @@ class Spreadsheet(object):
         self.addPL()
         self.addQeq()
         self.addLaeqCalc()
-        self.addM()
-        self.addN()
-        self.addO()
+        self.addLea()
+        self.addQeqJour()
+        self.addQeqNuit()
         self.addSommeLaeqJour()
         self.addSommeLaeqNuit()
-        self.addR()
-        self.addS()
-        self.addT()
-        self.addU()
-
-        #ajoute 4 lignes pour y ajouter les infos
-        self.sortie.append_rows(4)
+        self.addPuissanceAcoustiqueJour()
+        self.addPuissanceAcoustiqueNuit()
+        self.addNbJour()
+        self.addNbNuit()
+        self.addPuissanceAcoustiqueSoir()
+        self.addNbSoir()
 
         #ajoutes les données de celulle
-        self.addSommeU()
-        self.addSommeT()
-        self.addSommeS()
-        self.addSommeR()
-        self.addSommeO()
-        self.addSommeN()
         self.addSommeIJ()
         self.addSommeLaeq()
 
@@ -127,7 +123,7 @@ class Spreadsheet(object):
     def addColumnFormula(self, name, data):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value(name)
-        for i in range(1, self.sortie.nrows()):
+        for i in range(1, self.sortie.nrows()-4):
             #si la formule comporte un {x} on remplace par i
             to = {'x': str(i+1)}
             form = data.format(**to)
@@ -144,7 +140,7 @@ class Spreadsheet(object):
     # add first column hours
     def addHours(self):
         self.sortie.insert_columns(0, 1)
-        for x in range(1, self.sortie.nrows()):
+        for x in range(1, self.sortie.nrows()-4):
             cell = self.sortie[x, 1].value
             time = self.getDate(cell)
             self.sortie[x, 0].set_value(time.hour)
@@ -162,85 +158,93 @@ class Spreadsheet(object):
     def addVL(self):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value("VL")
-        for x in range(1, self.sortie.nrows()):
+        for x in range(1, self.sortie.nrows()-4):
             self.sortie[x, self.sortie.ncols()-1].set_value(self.trafic[x,1].value)
 
     #copie la colonne PL de traffic dans sortie
     def addPL(self):
         self.sortie.append_columns(1)
         self.sortie[0, self.sortie.ncols()-1].set_value("PL")
-        for x in range(1, self.sortie.nrows()):
+        for x in range(1, self.sortie.nrows()-4):
             self.sortie[x, self.sortie.ncols()-1].set_value(self.trafic[x,2].value)
 
     def addQeq(self):
-        form = "=I{x}+B" + str(self.sortie.nrows()+4) + "*J{x}"
+        form = "=I{x}+B" + str(self.sortie.nrows()) + "*J{x}"
         self.addColumnFormula("Qeq", form)
 
     def addLaeqCalc(self):
-        lastR1 = str(self.sortie.nrows()+1)
-        lastR2 = str(self.sortie.nrows()+2)
+        lastR1 = str(self.sortie.nrows()-3)
+        lastR2 = str(self.sortie.nrows()-2)
         form = "=IF(Q{x}=0;C" + lastR1 + "+10*LOG10(K{x}/N" + lastR1 + ");C" + lastR2 + "+10*LOG10(K{x}/O" + lastR1 + "))"
         self.addColumnFormula("Laeq calc", form)
 
-    def addM(self):
+    def addLea(self):
         form = "=(C{x}-L{x})"
-        self.addColumnFormula("", form)
+        self.addColumnFormula("Lea mes-LAeq calc", form)
 
-    def addN(self):
+    def addQeqJour(self):
         form = "=IF(A{x}>5;IF(A{x}<22;K{x};0);0)"
-        self.addColumnFormula("", form)
+        self.addColumnFormula("Qeq Jour", form)
 
-    def addO(self):
+        form = "=SUM(N2:N" + str(self.sortie.nrows()-4) + ")/T" + str(self.sortie.nrows()-3)
+        self.sortie[self.sortie.nrows()-4, 13].formula = form
+
+    def addQeqNuit(self):
         form = "=IF(A{x}>5;IF(A{x}<22;0;K{x});K{x})"
-        self.addColumnFormula("", form)
+        self.addColumnFormula("Qeq Nuit", form)
 
-    def addSommeLaeqJour(self):
-        form = "=IF(A{x}>5;IF(A{x}<22;C{x};0);0)"
-        self.addColumnFormula("Somme LAeq JOUR", form)
-
-    def addSommeLaeqNuit(self):
-        form = "=IF(A{x}>5;IF(A{x}<22;0;C{x});C{x})"
-        self.addColumnFormula("Somme LAeq NUIT", form)
-
-    def addR(self):
-        form = "=IF(P{x}=0;0;10^(P{x}/10))"
-        self.addColumnFormula("", form)
-
-    def addS(self):
-        form = "=IF(Q{x}=0;0;10^(Q{x}/10))"
-        self.addColumnFormula("", form)
-
-    def addT(self):
-        form = "=IF(P{x}=0;0;1)"
-        self.addColumnFormula("", form)
-
-    def addU(self):
-        form = "=IF(Q{x}=0;0;1)"
-        self.addColumnFormula("", form)
-
-    def addSommeU(self):
-        form = "=SUM(U2:U" + str(self.sortie.nrows()-4) + ")"
-        self.sortie[self.sortie.nrows()-4, 20].formula = form
-
-    def addSommeT(self):
-        form = "=SUM(T2:T" + str(self.sortie.nrows()-4) + ")"
-        self.sortie[self.sortie.nrows()-4, 19].formula = form
-
-    def addSommeS(self):
-        form = "=SUM(S2:S" + str(self.sortie.nrows()-4) + ")/U" + str(self.sortie.nrows()-3)
-        self.sortie[self.sortie.nrows()-4, 18].formula = form
-
-    def addSommeR(self):
-        form = "=SUM(R2:R" + str(self.sortie.nrows()-4) + ")/T" + str(self.sortie.nrows()-3)
-        self.sortie[self.sortie.nrows()-4, 17].formula = form
-
-    def addSommeO(self):
         form = "=SUM(O2:O" + str(self.sortie.nrows()-4) + ")/U" + str(self.sortie.nrows()-3)
         self.sortie[self.sortie.nrows()-4, 14].formula = form
 
-    def addSommeN(self):
-        form = "=SUM(N2:N" + str(self.sortie.nrows()-4) + ")/T" + str(self.sortie.nrows()-3)
-        self.sortie[self.sortie.nrows()-4, 13].formula = form
+    def addSommeLaeqJour(self):
+        form = "=IF(A{x}>5;IF(A{x}<22;C{x};0);0)"
+        self.addColumnFormula("Somme LAeq Jour", form)
+
+    def addSommeLaeqNuit(self):
+        form = "=IF(A{x}>5;IF(A{x}<22;0;C{x});C{x})"
+        self.addColumnFormula("Somme LAeq Nuit", form)
+
+    def addPuissanceAcoustiqueJour(self):
+        form = "=IF(P{x}=0;0;10^(P{x}/10))"
+        self.addColumnFormula("Puissance acoustique Jour", form)
+
+        form = "=SUM(R2:R" + str(self.sortie.nrows()-4) + ")/T" + str(self.sortie.nrows()-3)
+        self.sortie[self.sortie.nrows()-4, 17].formula = form
+
+    def addPuissanceAcoustiqueNuit(self):
+        form = "=IF(Q{x}=0;0;10^(Q{x}/10))"
+        self.addColumnFormula("Puissance acoustique Nuit", form)
+
+        form = "=SUM(S2:S" + str(self.sortie.nrows()-4) + ")/U" + str(self.sortie.nrows()-3)
+        self.sortie[self.sortie.nrows()-4, 18].formula = form
+
+    def addNbJour(self):
+        form = "=IF(P{x}=0;0;1)"
+        self.addColumnFormula("Nb Nuit", form)
+
+        form = "=SUM(T2:T" + str(self.sortie.nrows()-4) + ")"
+        self.sortie[self.sortie.nrows()-4, 19].formula = form
+
+    def addNbNuit(self):
+        form = "=IF(Q{x}=0;0;1)"
+        self.addColumnFormula("Nb Nuit", form)
+
+        form = "=SUM(U2:U" + str(self.sortie.nrows()-4) + ")"
+        self.sortie[self.sortie.nrows()-4, 20].formula = form
+
+    def addPuissanceAcoustiqueSoir(self):
+        form = "=IF(A{x}>17;IF(A{x}<22;10^((C{x})/10);0);0)"
+        self.addColumnFormula("Puissance acoustique Soir (18h-22h)", form)
+
+        form = "=SUM(V2:V" + str(self.sortie.nrows()-4) + ")"
+        self.sortie[self.sortie.nrows()-4, 21].formula = form
+
+    def addNbSoir(self):
+        form = "=IF(V{x}=0;0;1)"
+        self.addColumnFormula("Nb Soir (18h-22h)", form)
+
+        form = "=SUM(W2:W" + str(self.sortie.nrows()-4) + ")"
+        self.sortie[self.sortie.nrows()-4, 22].formula = form
 
     def addSommeIJ(self):
         self.sortie[self.sortie.nrows()-4, 7].set_value("Total")
