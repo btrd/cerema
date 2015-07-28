@@ -148,7 +148,7 @@ if __name__ == '__main__':
     pathToGraph1 = pathData + "recalage_trafic.png"
     pathToGraph2 = pathData + "laeq_15min.jpg"
 
-    pathToParam = pathData + "param.ods"
+    pathToParam = pathData + "fiches_mesures.ods"
 
     pathToPic1 = pathData + "vue_facade.jpg"
     pathToPic2 = pathData + "vue_dessus.jpg"

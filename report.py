@@ -15,16 +15,20 @@ import os
 # Crée le raport
 class Report(object):
     def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2):
+        # get files
         self.param = self.openSheet(pathToParam)
         self.bruit = self.openSheet(pathToBruit)
 
         sortieFile = self.openDoc(pathToSortie)
         self.sortie = sortieFile.sheets[0]
 
+        # create report
         self.reportFile = odf_new_document("text")
         self.report = self.reportFile.get_body()
 
+        # gather data
         self.getDataBruit()
+        self.getDataParam()
         
         self.formatSortie()
         self.getDataSortie()
@@ -35,8 +39,10 @@ class Report(object):
         self.graph1Url = self.reportFile.add_file(pathToGraph1)
         self.graph2Url = self.reportFile.add_file(pathToGraph2)
 
+        # add content to report
         self.addStyle()
         self.addContent()
+
         self.saveFileLpod(self.reportFile, pathToReport)
 
     # Try to save document, quit if error
@@ -81,6 +87,22 @@ class Report(object):
         self.weighting = str(self.bruit[5,1].value)
         self.dataType = str(self.bruit[6,1].value)
         self.unit = str(self.bruit[7,1].value)
+
+    def getDataParam(self):
+        self.pointDe = self.param[0,1].value
+        self.sonometre = str(self.param[0,3].value)
+        self.nom = self.param[6,2].value
+        self.adresse1 = str(self.param[8,2].value)
+        self.adresse2 = str(int(self.param[10,2].value)) + " " + str(self.param[9,2].value)
+        self.exposition = "null"
+        self.distanceVoie = "null"
+        self.hauteurPriseSon = self.param[16,0].value + " (" + self.param[15,2].value + ")"
+        self.facade = "null"
+        self.natureSol = self.param[26,3].value
+        self.typeZone = "null"
+
+        self.nbrVoies = self.param[24,3].value
+        self.profilTravers = self.param[23,3].value
 
     def formatSortie(self):
         # enlève les colonnes à ne pas afficher
@@ -260,6 +282,23 @@ class Report(object):
 
     # rajoute le contenu dans report
     def addContent(self):
+        self.addText("Description du point de mesure", style="bold")
+        self.addText("Point de\t\t" + self.pointDe)
+        self.addText("Sonomètre utilisé\t" + self.sonometre)
+        self.addText("Nom\t\t\t" + self.nom)
+        self.addText("Adresse\t\t" + self.adresse1)
+        self.addText("\t\t\t" + self.adresse2)
+        self.addText("Exposition\t\t" + self.exposition)
+        self.addText("Distance voie\t\t" + self.distanceVoie)
+        self.addText("H. prise de son\t" + self.hauteurPriseSon)
+        self.addText("Facade/angle de vue\t" + self.facade)
+        self.addText("Nature du sol\t\t" + self.natureSol)
+        self.addText("Type de zone\t\t" + self.typeZone)
+
+        self.addText("Caractéristique de la voie :", style="bold")
+        self.addText("Nombre de voies \t" + self.nbrVoies)
+        self.addText("Profil en travers\t" + self.profilTravers)
+
         text = "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y')
         self.addText(text, style="bold", regex = "Traffic")
 
@@ -268,18 +307,18 @@ class Report(object):
 
         self.addText("Résultats des mesures", style="bold")
 
-        self.addText("Lieu \t\t\t" + self.lieu)
-        self.addText("Type de données \t" + self.dataType)
-        self.addText("Pondération \t\t" + self.weighting)
-        self.addText("Unité \t\t\t" + self.unit)
-        self.addText("Début \t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M'))
-        self.addText("Fin \t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M'))
+        self.addText("Lieu\t\t\t" + self.lieu)
+        self.addText("Type de données\t" + self.dataType)
+        self.addText("Pondération\t\t" + self.weighting)
+        self.addText("Unité\t\t\t" + self.unit)
+        self.addText("Début\t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M'))
+        self.addText("Fin\t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M'))
 
-        self.addText("Lden \t\t\t" + str(self.lden))
-        self.addText("Lnight \t\t\t" + str(self.lnight))
+        self.addText("Lden\t\t\t" + str(self.lden))
+        self.addText("Lnight\t\t\t" + str(self.lnight))
 
-        self.addText("LAeq(6h-22h) \t" + str(self.laeq6_22))
-        self.addText("LAeq(22h-6h) \t" + str(self.laeq22_6))
+        self.addText("LAeq(6h-22h)\t\t" + str(self.laeq6_22))
+        self.addText("LAeq(22h-6h)\t\t" + str(self.laeq22_6))
 
         self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
