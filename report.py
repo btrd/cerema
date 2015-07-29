@@ -277,9 +277,6 @@ class Report(object):
         paragraph = odf_create_paragraph(u"Houd1_LD", style="Title")
         self.report.append(paragraph)
 
-        _style_bold = odf_create_style('text', name = u'bold', bold = True, automatic=True)
-        self.reportFile.insert_style(_style_bold)
-
         col1 = ""
         col1 += "Description du point de mesure" + "\n"
         col1 += str("Point de\t\t" + self.pointDe.encode('utf-8','replace') + "\n")
@@ -294,7 +291,7 @@ class Report(object):
         col1 += "Nature du sol\t\t" + self.natureSol.encode('utf-8','replace') + "\n"
         col1 += "Type de zone\t\t" + self.typeZone + "\n\n"
 
-        col1 += "Caractéristique de la voie :" + "\n"
+        col1 += "Caractéristique de la voie" + "\n"
         col1 += "Nombre de voies \t" + self.nbrVoies.encode('utf-8','replace') + "\n"
         col1 += "Profil en travers\t" + self.profilTravers.encode('utf-8','replace') + "\n"
 
@@ -318,7 +315,6 @@ class Report(object):
         col2 += "LAeq(6h-22h)\t\t" + str(self.laeq6_22) + "\n"
         col2 += "LAeq(22h-6h)\t\t" + str(self.laeq22_6) + "\n"
 
-
         table = odf_create_table(u"Table")
         self.report.append(table)
         row = odf_create_row()
@@ -334,11 +330,6 @@ class Report(object):
         cell.set_value(unicode(col2, "utf-8"))
         row.set_cell(1, cell)
         table.set_row(0, row)
-
-        self.report.get_paragraph(0).set_span(_style_bold, regex="Facade")
-        self.report.get_paragraph(1).set_span(_style_bold, regex="Lnight")
-        # self.report.get_paragraph(2).set_span("style", regex=".*")
-        # self.report.get_paragraph(3).set_span("style", regex=".*")
 
         self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
