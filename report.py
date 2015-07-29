@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf8 -*-
+# coding: utf8
 import ezodf
 from datetime import datetime, timedelta
 from lpod.document import odf_new_document, odf_get_document
@@ -196,8 +196,7 @@ class Report(object):
 
     # rajoute les styles utilisé dans le document
     def addStyle(self):
-        self.reportFile.delete_styles()
-        _style_bold = odf_create_style('text', name = u'bold', bold = True)
+        _style_bold = odf_create_style('text', name = u'bold', bold = True, automatic=True)
         self.reportFile.insert_style(_style_bold)
 
         _style_red_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
@@ -223,20 +222,11 @@ class Report(object):
         self.report.append(p)
 
     def addTable(self):
-        table = odf_create_table(u"Table")
-        self.report.append(table)
-
         _red_style = odf_create_table_cell_style(background_color = 'red')
         red_style = self.reportFile.insert_style(_red_style, automatic=True)
 
         _default_style = odf_create_table_cell_style(border = '0.03pt solid #000000')
         default_style = self.reportFile.insert_style(_default_style, automatic=True)
-        
-        _style_small = odf_create_element(u"""\
-        <style:style style:name="small_txt" style:family="table-cell" style:class="text">
-            <style:text-properties fo:font-size="10pt"/>
-        </style:style>""")
-        self.reportFile.insert_style(_style_small)
 
         _style_width = odf_create_element(u"""
             <style:style style:family="table-column" style:name="colDate">
@@ -251,12 +241,14 @@ class Report(object):
         """)
         self.reportFile.insert_style(_style_width, automatic=True)
 
+        table = odf_create_table(u"Table")
+        self.report.append(table)
+
         for i in xrange(0, self.sortie.nrows()):
             row = odf_create_row()
             for j in xrange(0, self.sortie.ncols()):
                 cell = odf_create_cell()
-                cell.set_style("small_txt")
-                cell.set_style(_default_style)
+                cell.set_style(default_style)
                 if j == 0 and i < self.sortie.nrows()-4 and i > 0:
                     value = self.getDate(self.sortie[i, j].value).strftime('%d/%m/%Y %Hh')
                     cell.set_value(value)
@@ -282,43 +274,71 @@ class Report(object):
 
     # rajoute le contenu dans report
     def addContent(self):
-        self.addText("Description du point de mesure", style="bold")
-        self.addText("Point de\t\t" + self.pointDe)
-        self.addText("Sonomètre utilisé\t" + self.sonometre)
-        self.addText("Nom\t\t\t" + self.nom)
-        self.addText("Adresse\t\t" + self.adresse1)
-        self.addText("\t\t\t" + self.adresse2)
-        self.addText("Exposition\t\t" + self.exposition)
-        self.addText("Distance voie\t\t" + self.distanceVoie)
-        self.addText("H. prise de son\t" + self.hauteurPriseSon)
-        self.addText("Facade/angle de vue\t" + self.facade)
-        self.addText("Nature du sol\t\t" + self.natureSol)
-        self.addText("Type de zone\t\t" + self.typeZone)
+        paragraph = odf_create_paragraph(u"Houd1_LD", style="Title")
+        self.report.append(paragraph)
 
-        self.addText("Caractéristique de la voie :", style="bold")
-        self.addText("Nombre de voies \t" + self.nbrVoies)
-        self.addText("Profil en travers\t" + self.profilTravers)
+        _style_bold = odf_create_style('text', name = u'bold', bold = True, automatic=True)
+        self.reportFile.insert_style(_style_bold)
 
-        text = "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y')
-        self.addText(text, style="bold", regex = "Traffic")
+        col1 = ""
+        col1 += "Description du point de mesure" + "\n"
+        col1 += str("Point de\t\t" + self.pointDe.encode('utf-8','replace') + "\n")
+        col1 += "Sonomètre utilisé\t" + self.sonometre + "\n"
+        col1 += "Nom\t\t\t" + self.nom.encode('utf-8','replace') + "\n"
+        col1 += "Adresse\t\t" + self.adresse1 + "\n"
+        col1 += "\t\t\t" + self.adresse2 + "\n"
+        col1 += "Exposition\t\t" + self.exposition + "\n"
+        col1 += "Distance voie\t\t" + self.distanceVoie + "\n"
+        col1 += "H. prise de son\t" + self.hauteurPriseSon.encode('utf-8','replace') + "\n"
+        col1 += "Facade/angle de vue\t" + self.facade + "\n"
+        col1 += "Nature du sol\t\t" + self.natureSol.encode('utf-8','replace') + "\n"
+        col1 += "Type de zone\t\t" + self.typeZone + "\n\n"
 
-        text = "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%"
-        self.addText(text, style="bold")
+        col1 += "Caractéristique de la voie :" + "\n"
+        col1 += "Nombre de voies \t" + self.nbrVoies.encode('utf-8','replace') + "\n"
+        col1 += "Profil en travers\t" + self.profilTravers.encode('utf-8','replace') + "\n"
 
-        self.addText("Résultats des mesures", style="bold")
+        col2 = ""
+        col2 += "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y') + "\n"
 
-        self.addText("Lieu\t\t\t" + self.lieu)
-        self.addText("Type de données\t" + self.dataType)
-        self.addText("Pondération\t\t" + self.weighting)
-        self.addText("Unité\t\t\t" + self.unit)
-        self.addText("Début\t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M'))
-        self.addText("Fin\t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M'))
+        col2 += "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%" + "\n\n"
 
-        self.addText("Lden\t\t\t" + str(self.lden))
-        self.addText("Lnight\t\t\t" + str(self.lnight))
+        col2 += "Résultats des mesures" + "\n"
 
-        self.addText("LAeq(6h-22h)\t\t" + str(self.laeq6_22))
-        self.addText("LAeq(22h-6h)\t\t" + str(self.laeq22_6))
+        col2 += "Lieu\t\t\t" + self.lieu + "\n"
+        col2 += "Type de données\t" + self.dataType + "\n"
+        col2 += "Pondération\t\t" + self.weighting + "\n"
+        col2 += "Unité\t\t\t" + self.unit + "\n"
+        col2 += "Début\t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
+        col2 += "Fin\t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
+
+        col2 += "Lden\t\t\t" + str(self.lden) + "\n"
+        col2 += "Lnight\t\t\t" + str(self.lnight) + "\n"
+
+        col2 += "LAeq(6h-22h)\t\t" + str(self.laeq6_22) + "\n"
+        col2 += "LAeq(22h-6h)\t\t" + str(self.laeq22_6) + "\n"
+
+
+        table = odf_create_table(u"Table")
+        self.report.append(table)
+        row = odf_create_row()
+
+        cell = odf_create_cell()
+        cell.set_type("string")
+        cell.set_value(unicode(col1, "utf-8"))
+        row.set_cell(0, cell)
+        table.set_row(0, row)
+
+        cell = odf_create_cell()
+        cell.set_type("string")
+        cell.set_value(unicode(col2, "utf-8"))
+        row.set_cell(1, cell)
+        table.set_row(0, row)
+
+        self.report.get_paragraph(0).set_span(_style_bold, regex="Facade")
+        self.report.get_paragraph(1).set_span(_style_bold, regex="Lnight")
+        # self.report.get_paragraph(2).set_span("style", regex=".*")
+        # self.report.get_paragraph(3).set_span("style", regex=".*")
 
         self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
