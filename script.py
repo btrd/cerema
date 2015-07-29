@@ -156,8 +156,12 @@ if __name__ == '__main__':
     if args.dev:
         pathToReport = pathData + "report.odt"
         code = "Test sheet"
+        realise = "Dev"
+        depouille = "Dev"
     else:
         code = raw_input("Code du rapport : ")
+        realise = raw_input("Réalisé par : ")
+        depouille = raw_input("Dépouillé par : ")
         pathToReport = getPathToReport(pathData + "fiche_mesures_" + code + ".odt")
 
     check_requirements()
@@ -174,7 +178,7 @@ if __name__ == '__main__':
 
     # on créé le raport
     from report import Report
-    Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2, code)
+    Report(pathToReport, pathToParam, pathToBruit, pathToData, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2, code, realise, depouille)
 
     # Clean data directory
     clean()

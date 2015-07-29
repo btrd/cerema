@@ -14,8 +14,10 @@ import os
 
 # Crée le raport
 class Report(object):
-    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2, code):
+    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2, code, realise, depouille):
         self.code = code
+        self.realise = realise
+        self.depouille = depouille
 
         # get files
         self.param = self.openParam(pathToParam)
@@ -120,9 +122,9 @@ class Report(object):
         self.hauteurPriseSon = (self.param[16,0].value or "").encode('utf-8','replace') + " " + (self.param[15,2].value or "").encode('utf-8','replace')
         self.natureSol = (self.param[26,3].value or "").encode('utf-8','replace')
 
-        self.nebulosite = "__todo__"
-        self.directVent = "__todo__"
-        self.forceVent = "__todo__"
+        self.nebulosite = (self.param[34,2].value or "").encode('utf-8','replace') + "/" + (self.param[35,2].value or "").encode('utf-8','replace')
+        self.directVent = "" #TODO
+        self.forceVent = "" #TODO
         self.tempDeb = str(self.param[34,3].value or "")
         self.tempFin = str(self.param[35,3].value or "")
 
@@ -413,14 +415,14 @@ class Report(object):
 
         self.row = odf_create_row()
         cell = self.createCell("Réalisée par")
-        cell = self.createCell("__todo__")
+        cell = self.createCell(self.realise)
         cell = self.createCell("LAeq (6h-22h)")
         cell = self.createCell(str(self.laeq6_22))
         table.set_row(9, self.row)
 
         self.row = odf_create_row()
         cell = self.createCell("Dépouillée par")
-        cell = self.createCell("__todo__")
+        cell = self.createCell(self.depouille)
         cell = self.createCell("LAeq (22h-6h)")
         cell = self.createCell(str(self.laeq22_6))
         table.set_row(10, self.row)
