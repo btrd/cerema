@@ -94,12 +94,19 @@ class Report(object):
         self.nom = self.param[6,2].value
         self.adresse1 = str(self.param[8,2].value)
         self.adresse2 = str(int(self.param[10,2].value)) + " " + str(self.param[9,2].value)
-        self.exposition = "null"
-        self.distanceVoie = "null"
+        self.exposition = "__todo__"
+        self.distanceVoie = "__todo__"
         self.hauteurPriseSon = self.param[16,0].value + " (" + self.param[15,2].value + ")"
-        self.facade = "null"
+        self.facade = "__todo__"
         self.natureSol = self.param[26,3].value
-        self.typeZone = "null"
+        self.typeZone = "__todo__"
+
+        self.nebulosite = "__todo__"
+        self.directVent = "__todo__"
+        self.forceVent = "__todo__"
+        self.etatChausse = "__todo__"
+        self.tempDeb = str(self.param[34,3].value)
+        self.tempFin = str(self.param[35,3].value)
 
         self.nbrVoies = self.param[24,3].value
         self.profilTravers = self.param[23,3].value
@@ -278,6 +285,11 @@ class Report(object):
         self.report.append(paragraph)
 
         col1 = ""
+        col2 = ""
+
+        col1 += "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y') + "\n"
+        col1 += "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%" + "\n\n"
+
         col1 += "Description du point de mesure" + "\n"
         col1 += str("Point de\t\t" + self.pointDe.encode('utf-8','replace') + "\n")
         col1 += "Sonomètre utilisé\t" + self.sonometre + "\n"
@@ -295,25 +307,25 @@ class Report(object):
         col1 += "Nombre de voies \t" + self.nbrVoies.encode('utf-8','replace') + "\n"
         col1 += "Profil en travers\t" + self.profilTravers.encode('utf-8','replace') + "\n"
 
-        col2 = ""
-        col2 += "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y') + "\n"
-
-        col2 += "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%" + "\n\n"
-
         col2 += "Résultats des mesures" + "\n"
-
         col2 += "Lieu\t\t\t" + self.lieu + "\n"
         col2 += "Type de données\t" + self.dataType + "\n"
         col2 += "Pondération\t\t" + self.weighting + "\n"
         col2 += "Unité\t\t\t" + self.unit + "\n"
         col2 += "Début\t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
         col2 += "Fin\t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
-
         col2 += "Lden\t\t\t" + str(self.lden) + "\n"
         col2 += "Lnight\t\t\t" + str(self.lnight) + "\n"
-
         col2 += "LAeq(6h-22h)\t\t" + str(self.laeq6_22) + "\n"
         col2 += "LAeq(22h-6h)\t\t" + str(self.laeq22_6) + "\n"
+
+        col2 += "\nMétéo" + "\n"
+        col2 += "Nébulostié\t\t" + self.nebulosite + "\n"
+        col2 += "Direction vent\t\t" + self.directVent + "\n"
+        col2 += "Force vent\t\t" + self.forceVent + "\n"
+        col2 += "État de la chaussée\t" + self.etatChausse + "\n"
+        col2 += "Température début\t" + self.tempDeb + "\n"
+        col2 += "Température fin\t" + self.tempFin + "\n"
 
         table = odf_create_table(u"Table")
         self.report.append(table)
