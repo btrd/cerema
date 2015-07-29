@@ -42,7 +42,6 @@ class Report(object):
         self.graph2Url = self.reportFile.add_file(pathToGraph2)
 
         # add content to report
-        self.addStyle()
         self.addContent()
 
         self.saveFileLpod(self.reportFile, pathToReport)
@@ -220,14 +219,6 @@ class Report(object):
         self.picRatio = (new_im.size[1] + 0.0)/(new_im.size[0] + 0.0)
         self.picUrl = self.reportFile.add_file("pic_merge.jpeg")
 
-    # rajoute les styles utilisé dans le document
-    def addStyle(self):
-        _style_bold = odf_create_style('text', name = u'bold', bold = True, automatic=True)
-        self.reportFile.insert_style(_style_bold)
-
-        _style_red_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
-        self.reportFile.insert_style(_style_red_bold)
-
     # rajoute un paragraphe avec un style appliqué sur tout le paragraphe par défaut
     def addText(self, text, style="", regex=".*"):
         paragraph = odf_create_paragraph()
@@ -251,7 +242,7 @@ class Report(object):
         _red_style = odf_create_table_cell_style(background_color = 'red')
         red_style = self.reportFile.insert_style(_red_style, automatic=True)
 
-        _default_style = odf_create_table_cell_style(border = '0.03pt solid #000000')
+        _default_style = odf_create_table_cell_style(border='0.03pt solid #000000', padding="0.05cm")
         default_style = self.reportFile.insert_style(_default_style, automatic=True)
 
         _style_width = odf_create_element(u"""
@@ -298,71 +289,196 @@ class Report(object):
                 column.set_style("colNotDate")
                 table.set_column(column.x, column)
 
+    def createCell(self, value):
+        if self.cptCell in [0, 2, 50, 48, 64]:
+            style = self.cctl
+        elif self.cptCell in [1, 3, 51, 49, 65]:
+            style = self.cctr
+        elif self.cptCell in [42, 40, 70, 68, 56]:
+            style = self.ccbl
+        elif self.cptCell in [43, 41, 71, 69, 57]:
+            style = self.ccbr
+        elif self.cptCell in [44, 45, 46, 47, 60, 61]:
+            style = ""
+        elif self.cptCell % 4 == 0:
+            style = self.ccl
+        elif self.cptCell % 4 == 1:
+            style = self.ccr
+        elif self.cptCell % 4 == 2:
+            style = self.ccl
+        elif self.cptCell % 4 == 3:
+            style = self.ccr
+        cell = odf_create_cell(value=value.decode("utf-8"), cell_type="string", style=style)
+        self.row.set_cell(self.cptCell % 4, cell)
+        self.cptCell += 1
+
     # rajoute le contenu dans report
     def addContent(self):
+        _style_bold = odf_create_style('text', name = u'bold', bold = True, automatic=True)
+        self.reportFile.insert_style(_style_bold)
+
+        _style_red_bold = odf_create_style('text', name = u'red_bold', bold = True, color="#FF0000")
+        self.reportFile.insert_style(_style_red_bold)
+
+        border_style = '1pt solid #000000'
+        padding_style = "0.05cm"
+        #left border
+        _ccl = odf_create_table_cell_style(border_left=border_style, padding=padding_style)
+        self.ccl = self.reportFile.insert_style(_ccl, automatic=True)
+        #right border
+        _ccr = odf_create_table_cell_style(border_right=border_style, padding=padding_style)
+        self.ccr = self.reportFile.insert_style(_ccr, automatic=True)
+        #top right border
+        _cctr = odf_create_table_cell_style(border_right=border_style, border_top=border_style, padding=padding_style)
+        self.cctr = self.reportFile.insert_style(_cctr, automatic=True)
+        #top left border
+        _cctl = odf_create_table_cell_style(border_left=border_style, border_top=border_style, padding=padding_style)
+        self.cctl = self.reportFile.insert_style(_cctl, automatic=True)
+        #bottom right border
+        _ccbr = odf_create_table_cell_style(border_right=border_style, border_bottom=border_style, padding=padding_style)
+        self.ccbr = self.reportFile.insert_style(_ccbr, automatic=True)
+        #bottom left border
+        _ccbl = odf_create_table_cell_style(border_left=border_style, border_bottom=border_style, padding=padding_style)
+        self.ccbl = self.reportFile.insert_style(_ccbl, automatic=True)
+
         paragraph = odf_create_paragraph(self.code, style="Title")
         self.report.append(paragraph)
 
-        col1 = ""
-        col2 = ""
-
-        col1 += "Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y') + "\n"
-        col1 += "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%" + "\n\n"
-
-        col1 += "Description du point de mesure" + "\n"
-        col1 += str("Point de\t\t" + self.pointDe + "\n")
-        col1 += "Sonomètre utilisé\t" + self.sonometre + "\n"
-        col1 += "Nom\t\t\t" + self.nom + "\n"
-        col1 += "Adresse\t\t" + self.adresse1 + "\n"
-        col1 += "\t\t\t" + self.adresse2 + "\n"
-        col1 += "Distance voie\t\t" + self.distanceVoie + "\n"
-        col1 += "H. prise de son\t" + self.hauteurPriseSon + "\n"
-        col1 += "Nature du sol\t\t" + self.natureSol + "\n"
-
-        col1 += "Caractéristique de la voie" + "\n"
-        col1 += "Nombre de voies \t" + self.nbrVoies + "\n"
-        col1 += "Profil en travers\t" + self.profilTravers + "\n"
-
-        col2 += "Résultats des mesures" + "\n"
-        col2 += "Lieu\t\t\t" + self.lieu + "\n"
-        col2 += "Type de données\t" + self.dataType + "\n"
-        col2 += "Pondération\t\t" + self.weighting + "\n"
-        col2 += "Unité\t\t\t" + self.unit + "\n"
-        col2 += "Début\t\t\t" + self.endPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
-        col2 += "Fin\t\t\t" + self.startPeriod.strftime('%d/%m/%Y %H:%M') + "\n"
-        col2 += "Lden\t\t\t" + str(self.lden) + "\n"
-        col2 += "Lnight\t\t\t" + str(self.lnight) + "\n"
-        col2 += "LAeq(6h-22h)\t\t" + str(self.laeq6_22) + "\n"
-        col2 += "LAeq(22h-6h)\t\t" + str(self.laeq22_6) + "\n"
-
-        col2 += "\nMétéo" + "\n"
-        col2 += "Nébulostié\t\t" + self.nebulosite + "\n"
-        col2 += "Direction vent\t\t" + self.directVent + "\n"
-        col2 += "Force vent\t\t" + self.forceVent + "\n"
-        col2 += "Température début\t" + self.tempDeb + "\n"
-        col2 += "Température fin\t" + self.tempFin + "\n"
-
         table = odf_create_table(u"Table")
         self.report.append(table)
-        row = odf_create_row()
 
-        cell = odf_create_cell()
-        cell.set_type("string")
-        cell.set_value(unicode(col1, "utf-8"))
-        row.set_cell(0, cell)
-        table.set_row(0, row)
+        self.cptCell = 0
+        self.row = odf_create_row()
+        cell = self.createCell("Description du point de mesure")
+        cell = self.createCell("")
+        cell = self.createCell("Résultats des mesures")
+        cell = self.createCell("")
+        table.set_row(0, self.row)
 
-        cell = odf_create_cell()
-        cell.set_type("string")
-        cell.set_value(unicode(col2, "utf-8"))
-        row.set_cell(1, cell)
-        table.set_row(0, row)
+        self.row = odf_create_row()
+        cell = self.createCell("Point de")
+        cell = self.createCell(self.pointDe)
+        cell = self.createCell("Lieu")
+        cell = self.createCell(self.lieu)
+        table.set_row(1, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Sonomètre utilisé")
+        cell = self.createCell(self.sonometre)
+        cell = self.createCell("Type de données")
+        cell = self.createCell(self.dataType)
+        table.set_row(2, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Nom")
+        cell = self.createCell(self.nom)
+        cell = self.createCell("Pondération")
+        cell = self.createCell(self.weighting)
+        table.set_row(3, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Adresse")
+        cell = self.createCell(self.adresse1)
+        cell = self.createCell("Unité")
+        cell = self.createCell(self.unit)
+        table.set_row(4, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("")
+        cell = self.createCell(self.adresse2)
+        cell = self.createCell("Début")
+        cell = self.createCell(self.startPeriod.strftime('%d/%m/%Y %H:%M'))
+        table.set_row(5, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Distance voie")
+        cell = self.createCell(self.distanceVoie)
+        cell = self.createCell("Fin")
+        cell = self.createCell(self.endPeriod.strftime('%d/%m/%Y %H:%M'))
+        table.set_row(6, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("H. prise de son")
+        cell = self.createCell(self.hauteurPriseSon)
+        cell = self.createCell("Lden")
+        cell = self.createCell(str(self.lden))
+        table.set_row(7, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Nature du sol")
+        cell = self.createCell(self.natureSol)
+        cell = self.createCell("Lnight")
+        cell = self.createCell(str(self.lnight))
+        table.set_row(8, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Réalisée par")
+        cell = self.createCell("__todo__")
+        cell = self.createCell("LAeq (6h-22h)")
+        cell = self.createCell(str(self.laeq6_22))
+        table.set_row(9, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Dépouillée par")
+        cell = self.createCell("__todo__")
+        cell = self.createCell("LAeq (22h-6h)")
+        cell = self.createCell(str(self.laeq22_6))
+        table.set_row(10, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("")
+        cell = self.createCell("")
+        cell = self.createCell("")
+        cell = self.createCell("")
+        table.set_row(11, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Caractéristique de la voie")
+        cell = self.createCell("")
+        cell = self.createCell("Météo")
+        cell = self.createCell("")
+        table.set_row(12, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Nombre de voies")
+        cell = self.createCell(self.nbrVoies)
+        cell = self.createCell("Nébulosité")
+        cell = self.createCell(self.nebulosite)
+        table.set_row(13, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Profil en travers")
+        cell = self.createCell(self.profilTravers)
+        cell = self.createCell("Direction vent")
+        cell = self.createCell(self.directVent)
+        table.set_row(14, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("")
+        cell = self.createCell("")
+        cell = self.createCell("Force vent")
+        cell = self.createCell(self.forceVent)
+        table.set_row(15, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Traffic du " + str(self.startPeriod.day) + " au " + self.endPeriod.strftime('%d/%m/%Y'))
+        cell = self.createCell("")
+        cell = self.createCell("Température début")
+        cell = self.createCell(self.tempDeb)
+        table.set_row(16, self.row)
+
+        self.row = odf_create_row()
+        cell = self.createCell("Véh/j " + str(self.nbrVehicule))
+        cell = self.createCell("PL " + str(self.pourcPL) + "%")
+        cell = self.createCell("Température début")
+        cell = self.createCell(self.tempFin)
+        table.set_row(17, self.row)
 
         self.addImage(self.picUrl, "Photographie", ("17cm", str(17 * self.picRatio) + "cm"))
 
         self.addText("\tÉvolution temporelle en Laeq par pas de 15 minutes (Laeq élémentaire 1 seconde).\n", style="red_bold")
         
-        self.addImage(self.graph2Url, "laeq 15min")
+        self.addImage(self.graph2Url, "laeq 15min", ("15cm", "5.5cm"))
 
         self.addText("Remarque : \n", style="bold", regex="Remarque :")
 
