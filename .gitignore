@@ -4,6 +4,7 @@ ENV
 data/*
 !data/bruit.ods
 !data/trafic.ods
+!data/fiches_mesures.ods
 !data/laeq_15min.jpg
 !data/vue_facade.jpg
 !data/vue_dessus.jpg
