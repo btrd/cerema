@@ -14,9 +14,11 @@ import os
 
 # Crée le raport
 class Report(object):
-    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2):
+    def __init__(self, pathToReport, pathToParam, pathToBruit, pathToSortie, pathToPic1, pathToPic2, pathToGraph1, pathToGraph2, code):
+        self.code = code
+
         # get files
-        self.param = self.openSheet(pathToParam)
+        self.param = self.openParam(pathToParam)
         self.bruit = self.openSheet(pathToBruit)
 
         sortieFile = self.openDoc(pathToSortie)
@@ -63,11 +65,11 @@ class Report(object):
     # Try to open sheet document, quit if error, returns sheet
     def openSheet(self, pathToSheet):
         try:
-            sheet = ezodf.opendoc(pathToSheet)
+            sheetFile = ezodf.opendoc(pathToSheet)
         except:
             print("Fichier " + pathToSheet + " introuvable")
             exit(1)
-        data = sheet.sheets[0]
+        data = sheetFile.sheets[0]
         return data    # Try to open document, quit if error
 
     # Try to open sheet document, quit if error, returns doc
@@ -79,37 +81,54 @@ class Report(object):
             exit(1)
         return doc
 
+    def openParam(self, pathToParam):
+        try:
+            sheetFile = ezodf.opendoc(pathToParam)
+        except:
+            print("Fichier " + pathToParam + " introuvable")
+            exit(1)
+
+        i = 1
+        for sheet in sheetFile.sheets:
+            print str(i) + ": " + sheet.name
+            i += 1
+
+        select = raw_input("Quelle feuille de " + pathToParam + ": ")
+        if select == "": # aucune valeur
+            index = 0
+        elif select.isdigit(): # index de la feuille
+            index = int(select)-1
+        else:  # nom de la feuille
+            index = select
+        return sheetFile.sheets[index]
+
     # Récupère les informations nécessaires dans bruit
     def getDataBruit(self):
         self.startPeriod = self.getDate(self.bruit[2,1].value)
         self.endPeriod = self.getDate(self.bruit[3,1].value)
-        self.lieu = str(self.bruit[4,1].value)
-        self.weighting = str(self.bruit[5,1].value)
-        self.dataType = str(self.bruit[6,1].value)
-        self.unit = str(self.bruit[7,1].value)
+        self.lieu = (self.bruit[4,1].value or "").encode('utf-8','replace')
+        self.weighting = (self.bruit[5,1].value or "").encode('utf-8','replace')
+        self.dataType = (self.bruit[6,1].value or "").encode('utf-8','replace')
+        self.unit = (self.bruit[7,1].value or "").encode('utf-8','replace')
 
     def getDataParam(self):
-        self.pointDe = self.param[0,1].value
-        self.sonometre = str(self.param[0,3].value)
-        self.nom = self.param[6,2].value
-        self.adresse1 = str(self.param[8,2].value)
-        self.adresse2 = str(int(self.param[10,2].value)) + " " + str(self.param[9,2].value)
-        self.exposition = "__todo__"
-        self.distanceVoie = "__todo__"
-        self.hauteurPriseSon = self.param[16,0].value + " (" + self.param[15,2].value + ")"
-        self.facade = "__todo__"
-        self.natureSol = self.param[26,3].value
-        self.typeZone = "__todo__"
+        self.pointDe = (self.param[0,1].value or "").encode('utf-8','replace')
+        self.sonometre = (self.param[0,3].value or "").encode('utf-8','replace')
+        self.nom = (self.param[6,2].value or "").encode('utf-8','replace')
+        self.adresse1 = (self.param[8,2].value or "").encode('utf-8','replace')
+        self.adresse2 = str(int(self.param[10,2].value or 0)) + " " + (self.param[9,2].value or "").encode('utf-8','replace')
+        self.distanceVoie = ""
+        self.hauteurPriseSon = (self.param[16,0].value or "").encode('utf-8','replace') + " " + (self.param[15,2].value or "").encode('utf-8','replace')
+        self.natureSol = (self.param[26,3].value or "").encode('utf-8','replace')
 
         self.nebulosite = "__todo__"
         self.directVent = "__todo__"
         self.forceVent = "__todo__"
-        self.etatChausse = "__todo__"
-        self.tempDeb = str(self.param[34,3].value)
-        self.tempFin = str(self.param[35,3].value)
+        self.tempDeb = str(self.param[34,3].value or "")
+        self.tempFin = str(self.param[35,3].value or "")
 
-        self.nbrVoies = self.param[24,3].value
-        self.profilTravers = self.param[23,3].value
+        self.nbrVoies = (self.param[24,3].value or "").encode('utf-8','replace')
+        self.profilTravers = (self.param[23,3].value or "").encode('utf-8','replace')
 
     def formatSortie(self):
         # enlève les colonnes à ne pas afficher
@@ -281,7 +300,7 @@ class Report(object):
 
     # rajoute le contenu dans report
     def addContent(self):
-        paragraph = odf_create_paragraph(u"Houd1_LD", style="Title")
+        paragraph = odf_create_paragraph(self.code, style="Title")
         self.report.append(paragraph)
 
         col1 = ""
@@ -291,21 +310,18 @@ class Report(object):
         col1 += "Véh/j " + str(self.nbrVehicule) + " PL " + str(self.pourcPL) + "%" + "\n\n"
 
         col1 += "Description du point de mesure" + "\n"
-        col1 += str("Point de\t\t" + self.pointDe.encode('utf-8','replace') + "\n")
+        col1 += str("Point de\t\t" + self.pointDe + "\n")
         col1 += "Sonomètre utilisé\t" + self.sonometre + "\n"
-        col1 += "Nom\t\t\t" + self.nom.encode('utf-8','replace') + "\n"
+        col1 += "Nom\t\t\t" + self.nom + "\n"
         col1 += "Adresse\t\t" + self.adresse1 + "\n"
         col1 += "\t\t\t" + self.adresse2 + "\n"
-        col1 += "Exposition\t\t" + self.exposition + "\n"
         col1 += "Distance voie\t\t" + self.distanceVoie + "\n"
-        col1 += "H. prise de son\t" + self.hauteurPriseSon.encode('utf-8','replace') + "\n"
-        col1 += "Facade/angle de vue\t" + self.facade + "\n"
-        col1 += "Nature du sol\t\t" + self.natureSol.encode('utf-8','replace') + "\n"
-        col1 += "Type de zone\t\t" + self.typeZone + "\n\n"
+        col1 += "H. prise de son\t" + self.hauteurPriseSon + "\n"
+        col1 += "Nature du sol\t\t" + self.natureSol + "\n"
 
         col1 += "Caractéristique de la voie" + "\n"
-        col1 += "Nombre de voies \t" + self.nbrVoies.encode('utf-8','replace') + "\n"
-        col1 += "Profil en travers\t" + self.profilTravers.encode('utf-8','replace') + "\n"
+        col1 += "Nombre de voies \t" + self.nbrVoies + "\n"
+        col1 += "Profil en travers\t" + self.profilTravers + "\n"
 
         col2 += "Résultats des mesures" + "\n"
         col2 += "Lieu\t\t\t" + self.lieu + "\n"
@@ -323,7 +339,6 @@ class Report(object):
         col2 += "Nébulostié\t\t" + self.nebulosite + "\n"
         col2 += "Direction vent\t\t" + self.directVent + "\n"
         col2 += "Force vent\t\t" + self.forceVent + "\n"
-        col2 += "État de la chaussée\t" + self.etatChausse + "\n"
         col2 += "Température début\t" + self.tempDeb + "\n"
         col2 += "Température fin\t" + self.tempFin + "\n"
 
